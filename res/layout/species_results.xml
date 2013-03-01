@@ -20,12 +20,10 @@
 	        android:orientation="vertical">
 	        
 	        <TextView
-	            android:id="@+id/commonName"
+	            android:id="@+id/guid"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:paddingTop="10dp"
-	            android:singleLine="true"
-	            android:textSize="15dp"
+				android:visibility="gone"
 	        />
 	        <TextView
 	            android:id="@+id/scientificName"

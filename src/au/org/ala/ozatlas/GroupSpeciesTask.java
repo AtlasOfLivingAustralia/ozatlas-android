@@ -16,7 +16,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.IntNode;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 /**
@@ -74,16 +78,20 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
     @Override
     // Once the image is downloaded, associates it to the imageView
     protected void onPostExecute(List<Map<String,Object>> results) {
-    	String[] from = { "commonName", "scientificName",  "count"};
-    	int[] to = {R.id.commonName, R.id.scientificName, R.id.count};
+    	String[] from = {"guid", "commonName", "scientificName",  "count"};
+    	int[] to = {R.id.guid, R.id.commonName, R.id.scientificName, R.id.count};
     	ImageListAdapter adapter = new ImageListAdapter(context, results, R.layout.species_results, from, to);
         // Setting the adapter to the listView
         listView.setAdapter(adapter);
-//        listView.setOnItemClickListener(new OnItemClickListener(){
-//		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
-//		    	//load a species details
-//		    }
-//		});		        
+        listView.setOnItemClickListener(new OnItemClickListener(){
+		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
+		    	Intent myIntent = new Intent(GroupSpeciesTask.this.context, SpeciesPageActivity.class);
+				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
+		    	String guid = (String) li.get("guid");		    	
+		    	myIntent.putExtra("guid", guid);
+		    	GroupSpeciesTask.this.context.startActivity(myIntent);
+		    }
+		});		        
     }
 
 	public void setContext(Context context) {

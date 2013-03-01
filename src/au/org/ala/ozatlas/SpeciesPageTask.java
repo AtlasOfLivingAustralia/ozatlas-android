@@ -3,6 +3,7 @@ package au.org.ala.ozatlas;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
@@ -29,7 +30,7 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 			String guid = args[0];
 			
 			HttpClient http = HttpUtil.getTolerantClient();
-			final String searchUrl = "https://m.ala.org.au/species/" + guid;
+			final String searchUrl = "https://m.ala.org.au/species/" + guid + ".json";
 			System.out.println("PAGE URL : " + searchUrl);
 			
 			HttpGet get = new HttpGet(searchUrl);
@@ -43,9 +44,24 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 			JsonNode images = node.findValue("images");
 
 			JsonNode taxonConcept = node.get("taxonConcept");
+			JsonNode commonNames = node.get("commonNames");
 			
-			map.put("guid", node.get("taxonConcept").get("guid").getTextValue()); 
-			map.put("scientificName", taxonConcept.get("guid").getTextValue());
+			map.put("guid", taxonConcept.get("guid").getTextValue()); 
+			map.put("scientificName", taxonConcept.get("nameString").getTextValue());
+			map.put("authorship", taxonConcept.get("author").getTextValue());			
+			
+			if(commonNames != null){
+				Iterator<JsonNode> iter = commonNames.getElements();
+				if(iter.hasNext()){
+					map.put("commonName", iter.next().get("nameString").getTextValue());
+				}
+			}
+			
+			if(taxonConcept.get("rankID") != null)
+				map.put("rankID", taxonConcept.get("rankID").getIntValue());
+			
+			
+			
 			map.put("speciesImage", images.get(0).get("largeImageUrl").getTextValue());
 				
 			// + taxonConcept.get("guid").getTextValue()
@@ -54,11 +70,14 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 			System.out.println("http://biocache.ala.org.au/ws/density/map?q=lsid:%22" +  URLEncoder.encode(guid, "UTF-8") +"%22%20AND%20geospatial_kosher:true");
 			System.out.println("Loaded");	
 			
+			
 		} catch(Exception e){
 			e.printStackTrace();
 		}		
 		return map;
 	}
+	
+	
 	
     @Override
     // Once the image is downloaded, associates it to the imageView

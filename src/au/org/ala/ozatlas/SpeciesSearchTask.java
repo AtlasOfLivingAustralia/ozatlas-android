@@ -15,8 +15,12 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * Species search 
@@ -70,7 +74,16 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
     	int[] to = {R.id.scientificName, R.id.commonName};
     	ImageListAdapter adapter = new ImageListAdapter(context, results, R.layout.listview_thumbnails, from, to);
         // Setting the adapter to the listView
-        listView.setAdapter(adapter);		
+        listView.setAdapter(adapter);	
+        listView.setOnItemClickListener(new OnItemClickListener(){
+		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
+		    	Intent myIntent = new Intent(SpeciesSearchTask.this.context, SpeciesPageActivity.class);
+				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
+		    	String guid = (String) li.get("guid");		    	
+		    	myIntent.putExtra("guid", guid);
+		    	SpeciesSearchTask.this.context.startActivity(myIntent);
+		    }
+		});	        
     }
 
 	public void setContext(Context context) {

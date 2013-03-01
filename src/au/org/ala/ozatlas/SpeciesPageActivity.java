@@ -3,12 +3,11 @@ package au.org.ala.ozatlas;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.fedorvlasov.lazylist.ImageLoader;
 
 /**
  * Load a species page
@@ -19,16 +18,32 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 
 	@Override
 	public void render(Map<String, Object> data) {
-    	ImageLoader imageLoader = new ImageLoader(this);
-    	//add species map
-    	ImageView mapView = (ImageView) findViewById(R.id.speciesMap);
-		imageLoader.DisplayImage((String) data.get("speciesMap"), mapView);
 		
 		ImageView speciesImage = (ImageView) findViewById(R.id.speciesImage);
-		imageLoader.DisplayImage((String) data.get("speciesImage"), speciesImage);
+		String speciesImageUrl = (String) data.get("speciesImage");
+
+		ImageView speciesMap = (ImageView) findViewById(R.id.speciesMap);
+		String speciesMapUrl = (String) data.get("speciesMap");
+		
+		
+		LoadImageTask lit = new LoadImageTask();
+		lit.setImageView(speciesImage);
+		lit.execute(speciesImageUrl);
+
+		LoadImageTask lit2 = new LoadImageTask();
+		lit2.setImageView(speciesMap);
+		lit2.execute(speciesMapUrl);		
 		
 		TextView scientificName = (TextView) findViewById(R.id.scientificName);
 		scientificName.setText((String) data.get("scientificName"));
+		
+		TextView authorship = (TextView) findViewById(R.id.authorship);
+		authorship.setText((String) data.get("authorship"));		
+		
+		TextView commonName = (TextView) findViewById(R.id.commonName);
+		commonName.setText((String) data.get("commonName"));
+		
+		setTitle((String) data.get("scientificName"));
 	}
 
 	@Override
@@ -37,7 +52,12 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 		setContentView(R.layout.activity_species_page);
 		SpeciesPageTask spt = new SpeciesPageTask();
 		spt.setRenderPage(this);
-		spt.execute("urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae");
+		Intent intent = getIntent();
+		if(intent != null && intent.getExtras() != null){
+			spt.execute((String) intent.getExtras().get("guid"));
+		} else {
+			spt.execute("urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae");
+		}
 	}
 
 	@Override
