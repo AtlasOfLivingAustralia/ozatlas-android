@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OzAtlas - Atlas of Living Australia</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="title_activity_explore_your_area">Explore Your Area</string>
+    <string name="title_activity_species_search">Species search</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_explore_groups">Explore groups</string>
+    <string name="title_activity_explore_group">Explore group</string>
+    <string name="title_activity_species_page">SpeciesPageActivity</string>
+
+</resources>
