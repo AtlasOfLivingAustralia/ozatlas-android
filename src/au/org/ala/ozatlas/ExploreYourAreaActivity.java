@@ -3,6 +3,7 @@ package au.org.ala.ozatlas;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -11,6 +12,10 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.location.Address;
+import android.location.GpsStatus;
+import android.location.GpsStatus.Listener;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -166,6 +171,7 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
                 });
                 
                 this.map.setOnCameraChangeListener(new OnCameraChangeListener(){
+                	
 					@Override
 					public void onCameraChange(CameraPosition position) {
 						ExploreYourAreaActivity.this.marker.setPosition(position.target);
@@ -176,6 +182,33 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
         }
     }
     
+    boolean firstFixFired = false;
+    
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+        if(this.map.getMyLocation() != null){
+        	Location location = this.map.getMyLocation();
+        	this.map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude())));
+        }
+        
+        
+        String context = Context.LOCATION_SERVICE;
+        LocationManager locationManager = (LocationManager) getSystemService(context);
+        locationManager.addGpsStatusListener(new Listener(){
+			@Override
+			public void onGpsStatusChanged(int status) {
+				if(status == 3 && ExploreYourAreaActivity.this.map.getMyLocation() !=null && !ExploreYourAreaActivity.this.firstFixFired){  //first fix event
+		        	Location location = ExploreYourAreaActivity.this.map.getMyLocation();
+		        	LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+		        	ExploreYourAreaActivity.this.firstFixFired = true;
+		        	ExploreYourAreaActivity.this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 11, 0f, 0f)));
+				}
+			}
+        });
+	}
+
 	private void updateTheRadius() {
 		VisibleRegion visibleRegion = ExploreYourAreaActivity.this.map.getProjection().getVisibleRegion();
         
@@ -231,7 +264,7 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
 		if(!address.isEmpty()){
 			LatLng latLng = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
 //			this.map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-			this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 9, 0f, 0f)));
+			this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 11, 0f, 0f)));
 		} else {
 			System.out.println("No adresses - do something...send dialog to user..");
 		}
