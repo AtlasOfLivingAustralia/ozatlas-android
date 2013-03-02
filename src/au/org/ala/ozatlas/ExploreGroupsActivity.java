@@ -38,7 +38,7 @@ public class ExploreGroupsActivity extends Activity implements LoadGroup {
 			radius = "10";
 		}
 		gst.execute(lat,lon,radius);
-		setTitle("Species in the area of : " + lat + ", "+ lon +", radius: " + radius + "km");
+		setTitle("Area - radius: " + radius + "km, " + lat + ", "+ lon);
 	}
 
 	@Override
