@@ -7,7 +7,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SpeciesPageActivity" >
-	
+
+    	
     <LinearLayout         
         android:id="@+id/scientificNameLayout"
         android:layout_width="wrap_content"
@@ -25,7 +26,7 @@
 	        android:id="@+id/authorship"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:textSize="20dp"
+	        android:textSize="12dp"
 	        android:paddingLeft="10dp"        
 	        />    
     </LinearLayout>
@@ -38,22 +39,46 @@
         android:textSize="25dp"
       />  
 
-    <ImageView
-        android:id="@+id/speciesImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"    
-        android:layout_marginTop="36dp"
-        android:layout_below="@+id/commonName"              
-     />
-    
-  <ImageView
-        android:id="@+id/speciesMap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignLeft="@+id/speciesImage"
-        android:layout_below="@+id/speciesImage"
-        android:layout_marginTop="36dp"
-         android:scaleType="matrix"
-     />     
+	    <ImageView
+	        android:id="@+id/speciesImage"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"    
+	        android:layout_marginTop="36dp"
+	        android:layout_below="@+id/commonName"              
+	     />
+	    <TextView
+	        android:id="@+id/speciesImageCreator"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/speciesImage"        
+	        android:textSize="15dp"
+	        android:paddingBottom="5dp"
+	      />
+	      	    <!-- 	    <TextView
+	        android:id="@+id/speciesImageRecord"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/speciesImageSource"        
+	        android:textSize="12dp"
+	      />   -->	 
+	    <TextView
+	        android:id="@+id/speciesImageSource"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/speciesImageCreator"        
+	        android:textSize="12dp"
+	        android:paddingBottom="10dp"
+	      />  
+     
+	    
+		  <ImageView
+		        android:id="@+id/speciesMap"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
+		        android:layout_alignLeft="@+id/speciesImage"
+		        android:layout_below="@+id/speciesImageSource"
+		        android:layout_marginTop="36dp"
+		         android:scaleType="matrix"
+		     />
 
 </RelativeLayout>

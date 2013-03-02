@@ -1,9 +1,11 @@
 package au.org.ala.ozatlas;
 
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ImageView;
@@ -20,16 +22,27 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 	public void render(Map<String, Object> data) {
 		
 		ImageView speciesImage = (ImageView) findViewById(R.id.speciesImage);
-		String speciesImageUrl = (String) data.get("speciesImage");
+		List<ImageDTO> speciesImages = (List<ImageDTO>) data.get("speciesImages");
+
+		if(speciesImages != null && !speciesImages.isEmpty()){
+			
+			ImageDTO image = speciesImages.get(0); 
+			LoadImageTask lit = new LoadImageTask();
+			lit.setImageView(speciesImage);
+			lit.execute(image.getLargeImageUrl());
+			//add metadata
+			if(image.creator != null)
+				((TextView)findViewById(R.id.speciesImageCreator)).setText("Image by: " + image.creator);
+			if(image.infoSourceName != null)
+				((TextView)findViewById(R.id.speciesImageSource)).setText("Source: " + image.infoSourceName);
+		} else {
+			speciesImage.setVisibility(ImageView.GONE);
+			findViewById(R.id.speciesImageCreator).setVisibility(TextView.GONE);
+			findViewById(R.id.speciesImageSource).setVisibility(TextView.GONE);
+		}
 
 		ImageView speciesMap = (ImageView) findViewById(R.id.speciesMap);
 		String speciesMapUrl = (String) data.get("speciesMap");
-		
-		
-		LoadImageTask lit = new LoadImageTask();
-		lit.setImageView(speciesImage);
-		lit.execute(speciesImageUrl);
-
 		LoadImageTask lit2 = new LoadImageTask();
 		lit2.setImageView(speciesMap);
 		lit2.execute(speciesMapUrl);		
@@ -37,11 +50,22 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 		TextView scientificName = (TextView) findViewById(R.id.scientificName);
 		scientificName.setText((String) data.get("scientificName"));
 		
+		if(data.get("rankID") != null){
+			Integer rankID = (Integer) data.get("rankID");
+			if(rankID>6000){
+				scientificName.setTypeface(null, Typeface.ITALIC);
+			}
+		}
+		
 		TextView authorship = (TextView) findViewById(R.id.authorship);
 		authorship.setText((String) data.get("authorship"));		
 		
 		TextView commonName = (TextView) findViewById(R.id.commonName);
-		commonName.setText((String) data.get("commonName"));
+		if(data.get("commonName") != null){
+			commonName.setText((String) data.get("commonName"));
+		} else {
+			commonName.setVisibility(TextView.GONE);
+		}
 		
 		setTitle((String) data.get("scientificName"));
 	}

@@ -31,6 +31,10 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
 	protected ListView listView;
 	protected Context context;
 	protected LoadGroup loadGroup;
+	
+	String lat;
+	String lon;
+	String radius;	
 
 	public GroupsSearchTask(LoadGroup loadGroup){
 		this.loadGroup = loadGroup;
@@ -40,8 +44,13 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
 	protected List<Map<String,Object>> doInBackground(String... args) {
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		try{
+			
+			this.lat = args[0];
+			this.lon = args[1];
+			this.radius = args[2];			
+			
 			HttpClient http = HttpUtil.getTolerantClient();
-			final String searchUrl = "https://m.ala.org.au/searchByMultiRanks?lat=-37.3&lon=149.1&radius=100"; 
+			final String searchUrl = "https://m.ala.org.au/searchByMultiRanks?lat="+lat+"&lon="+lon+"&radius="+radius; 
 			HttpGet get = new HttpGet(searchUrl);
 			HttpResponse response = http.execute(get);
 			InputStream input = response.getEntity().getContent();
@@ -62,10 +71,11 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
 					JsonNode result = iter.next();
 					Map<String,Object> map = new HashMap<String,Object>();
 					map.put("groupName", groupName); 
-					map.put("commonName", ((JsonNode) result.get("commonName")).getTextValue());
 					map.put("scientificName", ((JsonNode) result.get("scientificName")).getTextValue());
 					map.put("count", String.format("%,d", ((IntNode) result.get("recordCount")).asInt())  + " records");
-					map.put("smallImageUrl", ((JsonNode) result.get("imageUrl")).getTextValue());
+					if(result.get("imageUrl")!=null)  map.put("smallImageUrl", ((JsonNode) result.get("imageUrl")).getTextValue());
+					if(result.get("commonName")!=null) map.put("commonName", ((JsonNode) result.get("commonName")).getTextValue());					
+					if(result.get("rankId")!=null) map.put("rankID", ((JsonNode) result.get("rankId")).asInt());
 					results.add(map);
 				}
 			}
@@ -81,7 +91,7 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
     protected void onPostExecute(List<Map<String,Object>> results) {
     	String[] from = {"commonName", "scientificName", "count", "groupName"};
     	int[] to = {R.id.commonName, R.id.scientificName, R.id.count, R.id.groupName};
-    	ImageListSectionAdapter adapter = new ImageListSectionAdapter(context, results, R.layout.group_results, from, to);
+    	SpeciesListSectionAdapter adapter = new SpeciesListSectionAdapter(context, results, R.layout.group_results, from, to);
         // Setting the adapter to the listView
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new OnItemClickListener(){
@@ -90,7 +100,8 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
 		    	@SuppressWarnings("unchecked")
 				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
 		    	String groupName = (String) li.get("commonName");
-		    	GroupsSearchTask.this.loadGroup.load(groupName);
+		    	GroupsSearchTask.this.loadGroup.load(groupName, GroupsSearchTask.this.lat, 
+		    			GroupsSearchTask.this.lon, GroupsSearchTask.this.radius);
 		    }
 		});		        
     }

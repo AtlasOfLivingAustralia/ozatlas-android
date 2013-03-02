@@ -2,14 +2,17 @@ package au.org.ala.ozatlas;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.os.AsyncTask;
@@ -39,6 +42,9 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 			
 			//parse JSON
 			ObjectMapper om = new ObjectMapper();
+			om.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			
+			
 			JsonNode node = om.readTree(input);
 			
 			JsonNode images = node.findValue("images");
@@ -61,8 +67,10 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 				map.put("rankID", taxonConcept.get("rankID").getIntValue());
 			
 			
-			
-			map.put("speciesImage", images.get(0).get("largeImageUrl").getTextValue());
+			if(images !=null && images.getElements().hasNext()){
+				List<ImageDTO> imageDTOs = om.convertValue(images, om.getTypeFactory().constructCollectionType(ArrayList.class, ImageDTO.class));
+				map.put("speciesImages", imageDTOs);
+			}
 				
 			// + taxonConcept.get("guid").getTextValue()
 			map.put("speciesMap", "http://biocache.ala.org.au/ws/density/map?q=lsid:%22" +  URLEncoder.encode(guid, "UTF-8") +"%22%20AND%20geospatial_kosher:true");

@@ -13,13 +13,32 @@
 	  android:layout_height="match_parent"
 	  android:layout_marginTop="?android:attr/actionBarSize"
 	  class="com.google.android.gms.maps.MapFragment">
-
-	<Button
-	    android:id="@+id/exploreGroups"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="View species for area"
-	     />
+		<LinearLayout 
+		    android:orientation="vertical"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:baselineAligned="false">	    
+			
+		    <EditText
+		        android:id="@+id/locationSearchInput"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:ems="10"
+		        android:inputType="text"
+		        android:singleLine="true"
+		        android:imeOptions="actionSearch" 
+		        android:textColor="#000000"
+		        >
+		    </EditText>		    
+			    
+			<Button
+			    android:id="@+id/exploreGroups"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:text="View species for area"
+			 />
+			
+		</LinearLayout>
 	</fragment>    
 </LinearLayout>
         

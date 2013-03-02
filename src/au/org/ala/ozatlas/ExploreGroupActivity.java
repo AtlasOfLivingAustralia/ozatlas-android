@@ -1,5 +1,7 @@
 package au.org.ala.ozatlas;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,8 +18,32 @@ public class ExploreGroupActivity extends Activity {
 		GroupSpeciesTask gst = new GroupSpeciesTask();
 		gst.setListView((ListView) findViewById(android.R.id.list));
 		gst.setContext(this);
-		gst.execute(groupName);
-		setTitle("Species in this area");		
+
+		String lat = "-37.1";
+		String lon = "149.1";	
+		String radius = "100";
+		String placeName = "";
+		
+		if(getIntent() != null && getIntent().getExtras() != null){
+			lat = (String) getIntent().getExtras().get("lat");
+			lon = (String) getIntent().getExtras().get("lon");
+			placeName = (String) getIntent().getExtras().get("placeName");
+			radius = (String) getIntent().getExtras().get("radius");
+		}
+		
+		if(lat == null){
+			radius = "100";
+			lat = "-37.1";
+			lon = "149.1";	
+			placeName = "DEFAULT PLACE";
+			//this is for debug purposes only
+		}		
+		
+		gst.execute(groupName, lat, lon, radius);
+		if(placeName != null)
+			setTitle(groupName +" in the area of : " + placeName);
+		else
+			setTitle(groupName +" in the area of : " + lat + ", " + lon);
 	}
 
 	@Override

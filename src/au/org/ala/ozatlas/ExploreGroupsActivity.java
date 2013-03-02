@@ -23,15 +23,22 @@ public class ExploreGroupsActivity extends Activity implements LoadGroup {
 		ListView listView = (ListView) findViewById(R.id.groupsList);
 		gst.setListView(listView);
 		gst.setContext(this);
-		
-		LatLng latlng = null;
-		if(getIntent() != null && getIntent().getExtras() != null)
-			latlng = (LatLng) getIntent().getExtras().get("latlng");
-		if(latlng == null){
-			//this is for debug purposes only
-			latlng = new LatLng(-37.1,149.1);
+		String lat = "";
+		String lon = "";
+		String radius = "";
+		if(getIntent() != null && getIntent().getExtras() != null){
+			lat = (String) getIntent().getExtras().get("lat");
+			lon = (String) getIntent().getExtras().get("lon");
+			radius = (String) getIntent().getExtras().get("radius");
 		}
-		gst.execute(latlng.latitude + "", latlng.longitude + "", "10");		
+		//this is for debug purposes only		
+		if(lat == null){
+			lat = "-37.1";
+			lon = "149.1";
+			radius = "10";
+		}
+		gst.execute(lat,lon,radius);
+		setTitle("Species in the area of : " + lat + ", "+ lon +", radius: " + radius + "km");
 	}
 
 	@Override
@@ -42,10 +49,13 @@ public class ExploreGroupsActivity extends Activity implements LoadGroup {
 	}
 
 	@Override
-	public void load(String name) {
+	public void load(String name, String lat, String lon, String radius) {
         System.out.println("Starting ExploreGroupActivity activity.....");
     	Intent myIntent = new Intent(this, ExploreGroupActivity.class);
     	myIntent.putExtra("groupName", name);
+    	myIntent.putExtra("lat", lat);
+    	myIntent.putExtra("lon", lon);
+    	myIntent.putExtra("radius", radius);
     	startActivity(myIntent);
 	}
 }

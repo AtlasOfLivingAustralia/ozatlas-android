@@ -35,7 +35,6 @@ public class SpeciesSearchActivity extends ListActivity  {
 		        return false;
 		    }
 		});		
-		
 	}
 
 	/** Called when the user touches the button */

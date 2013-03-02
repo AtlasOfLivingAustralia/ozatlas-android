@@ -1,5 +1,7 @@
 package au.org.ala.ozatlas;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,9 +9,13 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.location.Address;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,7 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class ExploreYourAreaActivity extends Activity {
+public class ExploreYourAreaActivity extends Activity implements GeocodeCallback {
 	
 	private GoogleMap map;
 	private Marker marker;
@@ -39,10 +45,37 @@ public class ExploreYourAreaActivity extends Activity {
 	        	
 	        	//get the latitude/longitude
 	        	LatLng position = ExploreYourAreaActivity.this.map.getCameraPosition().target;
-	        	myIntent.putExtra("latlng", position);
+	        	myIntent.putExtra("lat", Double.toString(position.latitude));
+	        	myIntent.putExtra("lon", Double.toString(position.longitude));
+	        	myIntent.putExtra("radius", "100");
+	        	
+	        	//get the place name
+	        	myIntent.putExtra("placeName", "My Default Place");
+	        	
 	        	ExploreYourAreaActivity.this.startActivity(myIntent);
 	        }
-	    });	        
+	    });	   
+		
+		final EditText searchText = (EditText) findViewById(R.id.locationSearchInput);
+		searchText.setOnKeyListener(new OnKeyListener()
+		{
+		    public boolean onKey(View v, int keyCode, KeyEvent event)
+		    {
+		        if (event.getAction() == KeyEvent.ACTION_DOWN)
+		        {
+		            switch (keyCode)
+		            {
+		                case KeyEvent.KEYCODE_DPAD_CENTER:
+		                case KeyEvent.KEYCODE_ENTER:
+		                	ExploreYourAreaActivity.this.geocode(searchText.getText().toString());
+		                    return true;
+		                default:
+		                    break;
+		            }
+		        }
+		        return false;
+		    }
+		});			
         
         if (this.map == null) {
         	MapFragment mf = ((MapFragment) getFragmentManager().findFragmentById(R.id.map));
@@ -91,7 +124,26 @@ public class ExploreYourAreaActivity extends Activity {
         }
     }
     
- // 1. some variables:
+	protected void geocode(String str) {
+		ReverseGeocodeTask rgt = new ReverseGeocodeTask();
+		rgt.setCallback(this);
+		rgt.setContext(this);
+		rgt.execute(str);	
+	}
+
+	@Override
+	public void geocodeCallback(List<Address> address) {
+		if(!address.isEmpty()){
+			LatLng latLng = new LatLng(address.get(0).getLatitude(), address.get(0).getLongitude());
+//			this.map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+			this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 9, 0f, 0f)));
+		} else {
+			System.out.println("No adresses - do something...send dialog to user..");
+		}
+	}	
+	
+	
+// 1. some variables:
 
 //    private static final double EARTH_RADIUS = 6378100.0;
 //    private int offset;
@@ -134,4 +186,5 @@ public class ExploreYourAreaActivity extends Activity {
         c.drawCircle(radius, radius, radius, paint2);
         return b;
     }
+
 }

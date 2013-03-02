@@ -41,11 +41,14 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
 	protected List<Map<String,Object>> doInBackground(String... args) {
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		try{
-			
 			HttpClient http = HttpUtil.getTolerantClient();		
 			String groupParam = URLEncoder.encode("\""+ args[0] + "\"", "utf-8");
+			String lat = args[1];
+			String lon = args[2];
+			String radius = args[3];
+			
 			//todo - move the root url to properties
-			final String searchUrl = "https://m.ala.org.au/exploreSubgroup?lat=-37.5&lon=149.1&radius=100&subgroup=" + groupParam;
+			final String searchUrl = "https://m.ala.org.au/exploreSubgroup?lat="+lat+"&lon="+lon+"&radius="+radius+"&subgroup=" + groupParam;
 			
 			System.out.println("Url used: " + searchUrl);
 			HttpGet get = new HttpGet(searchUrl);
@@ -63,8 +66,9 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
 				Map<String,Object> map = new HashMap<String,Object>();
 				map.put("guid", ((JsonNode) result.get("guid")).getTextValue());
 				map.put("scientificName", ((JsonNode) result.get("name")).getTextValue()); 
-				map.put("commonName", ((JsonNode) result.get("commonNameSingle")).getTextValue());
-				map.put("smallImageUrl", ((JsonNode) result.get("smallImageUrl")).getTextValue());
+				if(result.get("commonNameSingle") !=null) map.put("commonName", ((JsonNode) result.get("commonNameSingle")).getTextValue());
+				if(result.get("smallImageUrl") !=null) map.put("smallImageUrl", ((JsonNode) result.get("smallImageUrl")).getTextValue());
+				if(result.get("rankId") !=null) map.put("rankID", ((JsonNode) result.get("rankId")).asInt());
 				map.put("count", String.format("%,d", ((IntNode) result.get("recordCount")).asInt()) + " records");
 				results.add(map);
 			}
@@ -80,7 +84,7 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
     protected void onPostExecute(List<Map<String,Object>> results) {
     	String[] from = {"guid", "commonName", "scientificName",  "count"};
     	int[] to = {R.id.guid, R.id.commonName, R.id.scientificName, R.id.count};
-    	ImageListAdapter adapter = new ImageListAdapter(context, results, R.layout.species_results, from, to);
+    	SpeciesListAdapter adapter = new SpeciesListAdapter(context, results, R.layout.species_results, from, to);
         // Setting the adapter to the listView
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new OnItemClickListener(){

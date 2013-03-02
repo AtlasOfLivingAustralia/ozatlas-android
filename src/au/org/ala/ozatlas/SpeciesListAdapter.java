@@ -4,21 +4,23 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.fedorvlasov.lazylist.ImageLoader;
 
-public class ImageListAdapter extends SimpleAdapter {
+public class SpeciesListAdapter extends SimpleAdapter {
 
 	ImageLoader imageLoader = null;
 	int resourceID = -1;
 	Context context = null;
 	List<? extends Map<String, ?>> data;
 	
-	public ImageListAdapter(Context context,
+	public SpeciesListAdapter(Context context,
 			List<? extends Map<String, ?>> data, int resource, String[] from,
 			int[] to) {
 		super(context, data, resource, from, to);
@@ -36,11 +38,23 @@ public class ImageListAdapter extends SimpleAdapter {
 		
 		@SuppressWarnings("unchecked")
 		Map<String,Object> properties = (Map<String,Object>) data.get(position);
-		
-		System.out.println("loading image: " + (String) properties.get("smallImageUrl"));
-		
-//		ImageView imageView = getLayoutInflater().inflate(R.layout.item_list_image, parent, false);		
 		imageLoader.DisplayImage((String) properties.get("smallImageUrl"), imageView);
+		
+		if(properties.get("rankID") !=null){
+			TextView textView = (TextView) view.findViewById(R.id.scientificName);
+			Integer rankID = (Integer) properties.get("rankID");
+			if(textView != null & rankID !=null && rankID>=6000){
+				textView.setTypeface(null, Typeface.ITALIC);
+			}
+		}
+		
+		String commonName = (String) properties.get("commonName");
+		if(commonName == null || commonName.trim().length()==0){
+			TextView scientificNameView = (TextView) view.findViewById(R.id.scientificName);
+			TextView commonNameView = (TextView) view.findViewById(R.id.commonName);
+			scientificNameView.setTextSize(commonNameView.getTextSize());
+			commonNameView.setVisibility(TextView.GONE);
+		}
 		
 		return view;
 	}

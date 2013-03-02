@@ -58,6 +58,7 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
 				map.put("scientificName", result.get("name").getTextValue());
 				if(result.get("commonNameSingle")!=null) map.put("commonName", result.get("commonNameSingle").getTextValue()); 
 				if(result.get("smallImageUrl")!=null) map.put("smallImageUrl", result.get("smallImageUrl").getTextValue());
+				if(result.get("rankId") != null) map.put("rankID", result.get("rankId").getIntValue());
 				results.add(map);
 			}
 
@@ -70,9 +71,9 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
     @Override
     // Once the image is downloaded, associates it to the imageView
     protected void onPostExecute(List<Map<String,Object>> results) {
-    	String[] from = { "scientificName","commonName"};
+    	String[] from = {"scientificName", "commonName", "rankID"};
     	int[] to = {R.id.scientificName, R.id.commonName};
-    	ImageListAdapter adapter = new ImageListAdapter(context, results, R.layout.listview_thumbnails, from, to);
+    	SpeciesListAdapter adapter = new SpeciesListAdapter(context, results, R.layout.listview_thumbnails, from, to);
         // Setting the adapter to the listView
         listView.setAdapter(adapter);	
         listView.setOnItemClickListener(new OnItemClickListener(){
