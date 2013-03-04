@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+     >
+<RelativeLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    android:background="@color/record_sighting_background">
+
+    <RelativeLayout
+        android:id="@+id/speciesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/rounded_rectangle"
+        >
+        
+        <TextView 
+            android:id="@+id/headerText"
+            android:layout_alignParentLeft="true"
+	        android:layout_alignParentTop="true"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="5dp"
+	        android:text="@string/sighting_header_text"
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        />
+	    <ImageView
+	        android:id="@+id/speciesImageView"
+	        android:layout_width="48dp"
+	        android:layout_height="48dp"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@id/headerText"
+	        android:layout_margin="5dp"
+	        android:contentDescription="@string/photo_description"
+	        android:src="@drawable/background" />
+	
+	    <TextView
+	        android:id="@+id/commonNameLabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/headerText"
+	        android:layout_marginLeft="5dp"
+	        android:layout_marginTop="5dp"
+	        android:layout_toRightOf="@+id/speciesImageView"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <TextView
+	        android:id="@+id/scientificNameLabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@id/commonNameLabel"
+	        android:layout_below="@id/commonNameLabel"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="italic" />
+	</RelativeLayout>
+    
+    
+    <LinearLayout
+        android:id="@+id/photoLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/speciesLayout"
+        android:layout_marginTop="3dp"
+        android:background="@color/record_sighting_background"
+        android:weightSum="1.0" >
+	    
+	    <ImageView
+	        android:id="@+id/photoView"
+	        android:layout_width="0dp"
+	        android:layout_height="200dp"
+	        android:layout_weight="0.6"
+	        android:drawable="@drawable/no_photo"
+	        android:scaleType="fitXY"
+	        android:layout_margin="3dp"
+	        android:src="@drawable/no_photo" />
+
+	    <LinearLayout
+	        android:id="@+id/photoButtons"
+	        android:orientation="vertical"
+	        android:layout_width="0dp"
+	        android:layout_weight="0.4"
+	        android:layout_height="match_parent"
+	        >
+       	<Button 
+           android:id="@+id/takePhotoButton"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="@string/take_photo"
+           android:drawableBottom="@drawable/ic_menu_camera"
+           android:background="@android:color/darker_gray"
+           android:layout_margin="1dp"
+           android:layout_weight="0.5" 
+           >
+			<requestFocus/>
+		</Button>
+       	<Button
+           android:id="@+id/pickPhotoButton"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_margin="1dp"
+           
+           android:text="@string/pick_photo"
+           android:background="@android:color/darker_gray"
+           
+           android:drawableBottom="@drawable/ic_menu_gallery"
+           
+           android:layout_weight="0.5" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/dateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/photoLayout"
+        android:background="@drawable/rounded_rectangle"
+        android:weightSum="1.0"
+        android:layout_marginTop="3dp"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/dateDisplay"
+            style="@style/DateSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		<Button
+            android:id="@+id/timeDisplay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="@style/DateSpinner"
+             />
+    </LinearLayout>
+    <LinearLayout
+	    android:id="@+id/locationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="3dp" 
+        android:layout_below="@id/dateLayout"
+        android:background="@drawable/rounded_rectangle">
+	    <TextView
+	        android:id="@+id/textView4"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="3dp"
+	        android:text="@string/location_label"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <EditText
+	        android:id="@+id/locationField"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="textMultiLine"/>
+	
+	</LinearLayout>
+	
+    
+    <LinearLayout
+        android:id="@+id/howManyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/locationLayout"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/rounded_rectangle" >
+    	<TextView
+	        android:id="@+id/textView3"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:text="@string/how_many_label"
+	        android:layout_marginLeft="3dp"
+	        
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	    <EditText
+	        android:id="@+id/howManyField"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="number" />
+	</LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/notesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/howManyLayout"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
+        android:background="@drawable/rounded_rectangle"
+    >
+	    <TextView
+	        android:id="@+id/textView4"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:text="@string/notes_label"
+	        android:layout_marginLeft="3dp"
+	        
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <EditText
+	        android:id="@+id/notesField"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="textMultiLine">
+	
+	      
+	    </EditText>
+	</LinearLayout>
+	
+
+</RelativeLayout>
+</ScrollView>

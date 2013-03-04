@@ -24,7 +24,7 @@
         android:required="true" />
 
     <uses-sdk
-        android:minSdkVersion="11"
+        android:minSdkVersion="9"
         android:targetSdkVersion="17" />
 
     <application
@@ -64,7 +64,12 @@
             android:name="au.org.ala.ozatlas.SpeciesPageActivity"
             android:label="@string/title_activity_species_page" >
         </activity>
-
+        <activity
+            android:name="au.org.ala.ozatlas.RecordSightingActivity"
+            android:label="@string/title_record_sighting"
+            android:theme="@style/Theme.Sherlock.Light"
+            android:windowSoftInputMode="stateHidden">
+        </activity>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDOPFQ1cTfugt82nZw3WjOJr7g7W88KtNw" />

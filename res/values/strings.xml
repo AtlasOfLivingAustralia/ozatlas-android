@@ -11,6 +11,16 @@
     <string name="title_activity_explore_groups">Explore groups</string>
     <string name="title_activity_explore_group">Explore group</string>
     <string name="title_activity_species_page">SpeciesPageActivity</string>
+    <string name="dateLabel">Date:</string>
+    <string name="how_many_label">How many?</string>
+    <string name="notes_label">Notes</string>
+    <string name="record_sighting_label">Record your sighting</string>
+    <string name="title_record_sighting">Record Sighting</string>
+    <string name="location_label">Location</string>
+    <string name="photo_description">Your photo</string>
+    <string name="sighting_header_text">Record your sighting of:</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="pick_photo">Pick Photo</string>
     <string name="title_activity_latest_images">LatestImagesActivity</string>
 
 </resources>
