@@ -30,13 +30,13 @@
 			        android:id="@+id/scientificName"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:textSize="30dp"        
+			        style="@android:style/TextAppearance.Large"
 			        />
 			    <TextView
 			        android:id="@+id/authorship"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:textSize="12dp"
+			        style="@android:style/TextAppearance.Small"
 			        android:paddingLeft="10dp"        
 			        />  
 		    </LinearLayout>
@@ -46,14 +46,14 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@+id/scientificNameLayout"        
-		        android:textSize="25dp"
+		        style="@android:style/TextAppearance.Large"
 		      />  
 		      
 		    <TextView
 		        android:id="@+id/nameSource"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:textSize="13dp"
+		        style="@android:style/TextAppearance.Small"
 		        />  		      
 	
 		    <ImageView
@@ -68,7 +68,8 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@+id/speciesImage"        
-		        android:textSize="15dp"
+		        style="@android:style/TextAppearance.Small"
+		        android:paddingTop="5dp"
 		        android:paddingBottom="5dp"
 		      />
 		      	    <!-- 	    <TextView
@@ -83,7 +84,7 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@+id/speciesImageCreator"        
-		        android:textSize="12dp"
+		        style="@android:style/TextAppearance.Small"
 		        android:paddingBottom="10dp"
 		      />  
 		    
@@ -112,7 +113,7 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@+id/speciesImageCreator"        
-		        android:textSize="25dp"
+		        style="@android:style/TextAppearance.Large"
 		        android:paddingBottom="10dp"
 		        android:text="Conservation status"
 		      />  			    
@@ -132,7 +133,7 @@
 		        android:id="@+id/categoriesTitle"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:textSize="25dp"
+		        style="@android:style/TextAppearance.Large"
 		        android:paddingBottom="10dp"
 		        android:text="Pest status"
 		      />  		    
@@ -152,7 +153,7 @@
 		        android:id="@+id/synonymsTitle"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:textSize="25dp"
+		        style="@android:style/TextAppearance.Large"
 		        android:paddingBottom="10dp"
 		        android:text="Names and synonymy"
 		      />  		    
@@ -172,7 +173,7 @@
 		        android:id="@+id/commonNameTitle"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:textSize="25dp"
+		        style="@android:style/TextAppearance.Large"
 		        android:paddingBottom="10dp"
 		        android:text="Additional common names"
 		      />  

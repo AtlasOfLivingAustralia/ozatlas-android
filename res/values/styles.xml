@@ -36,12 +36,12 @@
     </style>
 
     
-    <style name="DateSpinner" parent="@style/Sherlock.__Widget.Holo.Spinner">
+  <style name="DateSpinner" parent="@style/Sherlock.__Widget.Holo.Spinner">
         <item name="android:paddingBottom">5dp</item>
         <item name="android:background">@drawable/abs__spinner_ab_holo_light</item>
     </style>
     
-    <!--  Used for the custom action bar in the RecordSightingActivity -->
+     <!-- Used for the custom action bar in the RecordSightingActivity -->
     <style name="CustomActionButton" parent="@style/Widget.Sherlock.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>

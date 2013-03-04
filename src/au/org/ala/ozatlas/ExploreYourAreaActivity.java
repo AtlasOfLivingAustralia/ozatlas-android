@@ -95,8 +95,11 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
             // Check if we were successful in obtaining the map.
             if (mf != null) {
             	this.map = mf.getMap();
+            	
+            	System.out.println("Map initialised: " + (this.map !=null));
+            	
                 // The Map is verified. It is now safe to manipulate the map.
-            	this.map.getUiSettings().setMyLocationButtonEnabled(true);
+//            	this.map.getUiSettings().setMyLocationButtonEnabled(true);
             	this.map.setMyLocationEnabled(true);
             	
             	//23.7000° S, 133.8700° E

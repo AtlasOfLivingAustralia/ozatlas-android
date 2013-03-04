@@ -52,7 +52,6 @@ public class SpeciesListAdapter extends SimpleAdapter {
 		if(commonName == null || commonName.trim().length()==0){
 			TextView scientificNameView = (TextView) view.findViewById(R.id.scientificName);
 			TextView commonNameView = (TextView) view.findViewById(R.id.commonName);
-			scientificNameView.setTextSize(commonNameView.getTextSize());
 			commonNameView.setVisibility(TextView.GONE);
 		}
 		

@@ -14,7 +14,7 @@
 	  android:windowActionBarOverlay="false"
 	  android:layout_width="match_parent"
 	  android:layout_height="match_parent"
-	  android:layout_marginTop="?android:attr/actionBarSize"
+	  android:layout_marginTop="?attr/actionBarSize"
 	  class="com.google.android.gms.maps.MapFragment">
 	</fragment> 
 	
