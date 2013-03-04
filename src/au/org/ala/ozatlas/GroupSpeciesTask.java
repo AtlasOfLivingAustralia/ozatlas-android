@@ -32,10 +32,6 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
 
 	protected ListView listView;
 	protected Context context;
-	
-	public void setListView(ListView listView) {
-		this.listView = listView;
-	}
 
 	@Override
 	protected List<Map<String,Object>> doInBackground(String... args) {
@@ -101,4 +97,8 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
 	public void setContext(Context context) {
 		this.context = context;
 	}
+	
+	public void setListView(ListView listView) {
+		this.listView = listView;
+	}	
 }

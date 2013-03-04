@@ -44,17 +44,20 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 			ObjectMapper om = new ObjectMapper();
 			om.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			
-			
 			JsonNode node = om.readTree(input);
 			
-			JsonNode images = node.findValue("images");
-
-			JsonNode taxonConcept = node.get("taxonConcept");
+			JsonNode taxonConcept = node.get("taxonConcept");			
+			JsonNode classification = node.findValue("classification");
 			JsonNode commonNames = node.get("commonNames");
+			JsonNode synonyms = node.get("synonyms");
+			JsonNode conservationStatuses = node.findValue("conservationStatuses");
+			JsonNode categories = node.findValue("categories");
+			JsonNode images = node.findValue("images");			
 			
 			map.put("guid", taxonConcept.get("guid").getTextValue()); 
 			map.put("scientificName", taxonConcept.get("nameString").getTextValue());
-			map.put("authorship", taxonConcept.get("author").getTextValue());			
+			map.put("authorship", taxonConcept.get("author").getTextValue());
+			map.put("infoSourceName", taxonConcept.get("infoSourceName").getTextValue());
 			
 			if(commonNames != null){
 				Iterator<JsonNode> iter = commonNames.getElements();
@@ -72,6 +75,26 @@ public class SpeciesPageTask extends AsyncTask<String, String, Map<String,Object
 				map.put("speciesImages", imageDTOs);
 			}
 				
+			if(classification !=null){
+				ClassificationDTO classificationDTO = om.convertValue(classification, om.getTypeFactory().constructType(ClassificationDTO.class));
+				map.put("classification", classificationDTO);
+			}
+			
+			if(synonyms !=null){
+				List<SynonymDTO> synonymDTOs = om.convertValue(synonyms, om.getTypeFactory().constructCollectionType(ArrayList.class, SynonymDTO.class));
+				map.put("synonyms", synonymDTOs);
+			}			
+
+			if(categories !=null){
+				List<CategoryDTO> categoryDTOs = om.convertValue(categories, om.getTypeFactory().constructCollectionType(ArrayList.class, CategoryDTO.class));
+				map.put("categories", categoryDTOs);
+			}	
+			
+			if(conservationStatuses !=null){
+				List<ConservationStatusDTO> conservationStatusDTOs = om.convertValue(conservationStatuses, om.getTypeFactory().constructCollectionType(ArrayList.class, ConservationStatusDTO.class));
+				map.put("conservationStatuses", conservationStatusDTOs);
+			}				
+			
 			// + taxonConcept.get("guid").getTextValue()
 			map.put("speciesMap", "http://biocache.ala.org.au/ws/density/map?q=lsid:%22" +  URLEncoder.encode(guid, "UTF-8") +"%22%20AND%20geospatial_kosher:true");
 			

@@ -37,7 +37,7 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		try{
 			HttpClient http = HttpUtil.getTolerantClient();
-			final String searchUrl = "https://m.ala.org.au/search.json?pageSize=30&q="  + URLEncoder.encode(args[0], "utf-8");
+			final String searchUrl = "http://bie.ala.org.au/ws/search.json?pageSize=30&fq=idxtype:TAXON&q="  + URLEncoder.encode(args[0], "utf-8");
 			System.out.println("SEARCH URL : " + searchUrl);
 			
 			HttpGet get = new HttpGet(searchUrl);

@@ -12,7 +12,6 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.location.Address;
-import android.location.GpsStatus;
 import android.location.GpsStatus.Listener;
 import android.location.Location;
 import android.location.LocationManager;
@@ -193,7 +192,6 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
         	this.map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude())));
         }
         
-        
         String context = Context.LOCATION_SERVICE;
         LocationManager locationManager = (LocationManager) getSystemService(context);
         locationManager.addGpsStatusListener(new Listener(){
@@ -273,26 +271,26 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
 	
 // 1. some variables:
 
-    private static final double EARTH_RADIUS = 6378100.0;
-    private int offset;
+//    private static final double EARTH_RADIUS = 6378100.0;
+//    private int offset;
+////
+////// 2. convert meters to pixels between 2 points in current zoom:
+////
+//    private int convertMetersToPixels(double lat, double lng, double radiusInMeters) {
+//    	if(lat == 0) lat = 1;
+//    	if(lng == 0) lng = 1;
+//    	
+//         double lat1 = radiusInMeters / EARTH_RADIUS;
+//         double lng1 = radiusInMeters / (EARTH_RADIUS * Math.cos((Math.PI * lat / 180)));
 //
-//// 2. convert meters to pixels between 2 points in current zoom:
+//         double lat2 = lat + lat1 * 180 / Math.PI;
+//         double lng2 = lng + lng1 * 180 / Math.PI; 
 //
-    private int convertMetersToPixels(double lat, double lng, double radiusInMeters) {
-    	if(lat == 0) lat = 1;
-    	if(lng == 0) lng = 1;
-    	
-         double lat1 = radiusInMeters / EARTH_RADIUS;
-         double lng1 = radiusInMeters / (EARTH_RADIUS * Math.cos((Math.PI * lat / 180)));
-
-         double lat2 = lat + lat1 * 180 / Math.PI;
-         double lng2 = lng + lng1 * 180 / Math.PI; 
-
-         Point p1 = this.map.getProjection().toScreenLocation(new LatLng(lat, lng));
-         Point p2 = this.map.getProjection().toScreenLocation(new LatLng(lat2, lng2));
-
-         return Math.abs(p1.x - p2.x);
-    }
+//         Point p1 = this.map.getProjection().toScreenLocation(new LatLng(lat, lng));
+//         Point p2 = this.map.getProjection().toScreenLocation(new LatLng(lat2, lng2));
+//
+//         return Math.abs(p1.x - p2.x);
+//    }
 
     /**
      * WARNING: This conversion isnt accurate..

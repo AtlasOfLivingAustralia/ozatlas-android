@@ -11,5 +11,6 @@
     <string name="title_activity_explore_groups">Explore groups</string>
     <string name="title_activity_explore_group">Explore group</string>
     <string name="title_activity_species_page">SpeciesPageActivity</string>
+    <string name="title_activity_latest_images">LatestImagesActivity</string>
 
 </resources>
