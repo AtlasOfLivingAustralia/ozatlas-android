@@ -14,6 +14,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import android.annotation.SuppressLint;
@@ -24,6 +25,7 @@ import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -54,7 +56,11 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	public static final String LSID_KEY = "lsid";
 	public static final String SCIENTIFIC_NAME_KEY = "scientificName";
 	public static final String COMMON_NAME_KEY = "commonName";
-	public static final String IMAGE_URL_KEY = "imageUrl";
+	public static final String IMAGE_URL_KEY = "speciesImageUrl";
+	
+	private static final String PHOTO_KEY = "photo";
+	private static final String LOCATION_KEY = "location";
+	private static final String DATE_KEY = "date";
 	
 	private static final String[] BUNDLE_KEYS = {LSID_KEY, SCIENTIFIC_NAME_KEY, COMMON_NAME_KEY, IMAGE_URL_KEY};
 	
@@ -68,10 +74,9 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	public static final int SELECT_FROM_GALLERY_REQUEST = 20;
 
 	private String lsid;
-	private String scientificName;
 	private Uri cameraFileUri;
-	private float latitude;
-	private float longitude;
+	private Location location;
+	private Date date;
 	
 	
 	@Override
@@ -84,10 +89,42 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		// Read the species that was sighted from the intent.
 		Intent i = getIntent();
 		render(bundleToMap(i.getExtras()));
+		if (savedInstanceState != null) {
+			cameraFileUri = savedInstanceState.getParcelable(PHOTO_KEY);
+			location = savedInstanceState.getParcelable(LOCATION_KEY);
+			long dateInMillis = savedInstanceState.getLong(DATE_KEY);
+			if (dateInMillis > 0) {
+				date = new Date(dateInMillis);
+			}
+		}
 		
-		updateDateTime(new Date());
+		updateDateTime();
+		updateLocation();
+		
+		// We have to do this later (hence the post) as the ImageView won't 
+		// have been layed out yet so will have zero size.
+		ImageView photoView = (ImageView)findViewById(R.id.photoView);
+		photoView.post(new Runnable() {
+			public void run() {
+				updatePhoto();
+			}
+		});
 		
 		addEventHandlers();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle out) {
+		super.onSaveInstanceState(out);
+		if (cameraFileUri != null) {
+			out.putParcelable(PHOTO_KEY, cameraFileUri);
+		}
+		if (location != null) {
+			out.putParcelable(LOCATION_KEY, location);
+		}
+		if (date != null) {
+			out.putLong(DATE_KEY, date.getTime());
+		}
 	}
 	
 	private void buildCustomActionBar() {
@@ -145,15 +182,15 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 					@Override
 					public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 						Calendar cal = Calendar.getInstance();
+						cal.setTime(date);
 						cal.set(Calendar.YEAR, year);
 						cal.set(Calendar.MONTH, monthOfYear);
 						cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-						dateButton.setText(android.text.format.DateFormat.getDateFormat(RecordSightingActivity.this).format(cal.getTime()));
+						date = cal.getTime();
+						updateDateTime();
 					}
 				};
-				String currentDate = dateButton.getText().toString();
 				try {
-					Date date = android.text.format.DateFormat.getDateFormat(RecordSightingActivity.this).parse(currentDate);
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(date);
 					new DatePickerDialog(RecordSightingActivity.this, listener, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
@@ -173,14 +210,14 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 					@Override
 					public void onTimeSet(TimePicker picker, int hour, int minute) {
 						Calendar cal = Calendar.getInstance();
+						cal.setTime(date);
 						cal.set(Calendar.HOUR, hour);
 						cal.set(Calendar.MINUTE, minute);
-						timeButton.setText(android.text.format.DateFormat.getTimeFormat(RecordSightingActivity.this).format(cal.getTime()));
+						date = cal.getTime();
+						updateDateTime();
 					}
 				};
-				String currentTime = timeButton.getText().toString();
 				try {
-					Date date = android.text.format.DateFormat.getTimeFormat(RecordSightingActivity.this).parse(currentTime);
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(date);
 					new TimePickerDialog(RecordSightingActivity.this, listener, cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), false).show();
@@ -192,46 +229,49 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		});
 	}
 	
+	
 	public MultiValueMap<String, Object> getRecordData(String userName, String authKey) {
 	    Log.i("SubmitSightingTask", "Constructing data object for POST...");
 	    MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
 	    params.add("surveyId", "1");
 //	    params.kingdom = $("SubmitSightingTask", "#kingdom").val();
-//	    Log.i("SubmitSightingTask", "Kingdom: " + params.kingdom);
 //	    params.family = $("SubmitSightingTask", "#family").val();
-//	    Log.i("SubmitSightingTask", "Family: " + params.family);
 	    params.add("taxonID", lsid);
-//	    Log.i("SubmitSightingTask", "TaxonID: " + params.taxonID);
-	    params.add("scientificName", scientificName);
-//	    Log.i("SubmitSightingTask", "Scientific name: " + params.scientificName);
-//	    params.survey_species_search = $("SubmitSightingTask", "#scientificName").val();
-//	    Log.i("SubmitSightingTask", "survey_species_search: " + params.survey_species_search);
-//	    params.commonName = $("SubmitSightingTask", "#commonName").val();
-//	    Log.i("SubmitSightingTask", "common name: " + params.commonName);
+	    TextView scientificName = (TextView)findViewById(R.id.scientificNameLabel);
+	    params.add("scientificName", scientificName.getText().toString());
+
+	    TextView commonName = (TextView)findViewById(R.id.commonNameLabel);
+	    params.add("commonName", commonName.getText().toString());
+	    
 //	    params.locationName = $("SubmitSightingTask", "#locality").val();
 //	    Log.i("SubmitSightingTask", "locationName: " + params.locationName);
-	    params.add("latitude", Float.toString(latitude));
-//	    Log.i("SubmitSightingTask", "latitude: " + params.latitude);
-	    params.add("longitude", Float.toString(longitude));
-//	    Log.i("SubmitSightingTask", "longitude: " + params.longitude);
-//	    params.deviceName = device.name;
-//	    Log.i("SubmitSightingTask", "device name: " + params.deviceName);
-//	    params.deviceId = device.uuid;
-//	    params.devicePlatform = device.platform;
-//	    params.deviceVersion = device.version;
-//	    params.user = userName.toLowerCase();
+	    if (location != null) {
+	    	params.add("latitude", Double.toString(location.getLatitude()));
+	    	params.add("longitude", Double.toString(location.getLongitude()));
+	        params.add("accuracyInMeters", Float.toString(location.getAccuracy()));
+	    }
+	    params.add("deviceName", android.os.Build.MODEL);
+	    
+	    params.add("deviceId", android.os.Build.SERIAL);
+	    params.add("devicePlatform", "android");
+	    params.add("deviceVersion", new android.os.Build.VERSION().toString());
+
+	    //	    params.user = userName.toLowerCase();
 //	    params.userName = userName.toLowerCase();
 //	    Log.i("SubmitSightingTask", "user: " + params.user);
 //	    params.authenticationKey = authKey;
 //	    Log.i("SubmitSightingTask", "auth key: " + params.authenticationKey);
-//	    params.date = $("SubmitSightingTask", "#occurrenceDate").val();
-//	    params.time = "12:00";
-	    params.add("notes", "");
-//	    Log.i("SubmitSightingTask", "notes: " + params.notes);
-	    params.add("attribute_1", new FileSystemResource(cameraFileUri.getPath()));
-//	    params.number = $("SubmitSightingTask", "#individualCount").val();
-//	    params.coordinatePrecision = 1.0; //TODO fix this
-//	    params.accuracyInMeters = 100; //TODO fix this
+	    Button date = (Button)findViewById(R.id.dateDisplay);
+	    params.add("date", date.getText().toString());
+	    Button time = (Button)findViewById(R.id.timeDisplay);
+	    params.add("time", time.getText().toString());
+	    EditText notes = (EditText)findViewById(R.id.notesField);
+	    params.add("notes", notes.getText().toString());
+	    if (cameraFileUri != null) {
+	    	params.add("attribute_1", new FileSystemResource(cameraFileUri.getPath()));
+	    }
+	    EditText number = (EditText)findViewById(R.id.howManyField);
+	    params.add("number", number.getText().toString());
 	    return params;
 	}
 	
@@ -270,6 +310,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 
 	@Override
 	public void render(Map<String, Object> data) {
+		this.lsid = (String)data.get(LSID_KEY);
 		ImageView speciesImage = (ImageView) findViewById(R.id.speciesImageView);
 		String speciesImageUrl = (String) data.get(IMAGE_URL_KEY);
 		
@@ -326,12 +367,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == TAKE_PHOTO_REQUEST) {
 			if (resultCode == RESULT_OK) {
-//				Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//				String selection = MediaStore.Images.ImageColumns.DATA +"=?";
-//				String[] args = {cameraFileUri.getPath()};
-//				queryPhotoMetadata(uri, selection, args);
-				readPhotoMetadata(cameraFileUri);
-				
+				readPhotoMetadata(cameraFileUri);		
 			}
 		} else if (requestCode == SELECT_FROM_GALLERY_REQUEST) {
 			if (resultCode == RESULT_OK) {
@@ -361,14 +397,28 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 
 		Cursor cursor = getContentResolver().query(photoUri, columns, selection, selectionArgs, null);
 		if (cursor.moveToFirst()) {
-			Log.d("", cursor.getString(0)+", "+cursor.getString(1)+", "+cursor.getString(2)+", "+cursor.getString(3));
-			photoUri = Uri.fromFile(new File(cursor.getString(3)));
-			updateFromPhoto(photoUri, new Date(Long.parseLong(cursor.getString(2))), Float.parseFloat(cursor.getString(0)),Float.parseFloat(cursor.getString(1)));
+			String lat = cursor.getString(0);
+			String lon = cursor.getString(1);
+			String dateTaken = cursor.getString(2);
+			cameraFileUri = Uri.fromFile(new File(cursor.getString(3)));
+			if (StringUtils.hasLength(lat)) {
+				location = new Location("EXIF");
+				location.setLatitude(Double.parseDouble(lat));
+				location.setLongitude(Double.parseDouble(lon));
+				updateLocation();
+			}
+			try {
+				date = new Date(Long.parseLong(dateTaken));
+			}
+			catch (NumberFormatException e) {
+				Log.e("RecordSightingActivity", "Invalid date in photo metadata: "+date);
+			}
+			
+			updatePhoto();
 		}
 		else {
 			Log.d("", "no meatdata!");
 		}
-		//ExifInterface exif = new ExifInterface(photoUri)
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -378,37 +428,55 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			float[] latlong= new float[2];
 			boolean hasLatLong = exif.getLatLong(latlong);
 			if (hasLatLong) {
-				Log.d("", latlong[0]+", "+latlong[1]+", "+exif.getAttribute(ExifInterface.TAG_DATETIME));
+				location = new Location("EXIF");
+				location.setLatitude(latlong[0]);
+				location.setLongitude(latlong[1]);
+				updateLocation();
 			}
 			else {
 				Log.i("", "No lat long in photo EXIF data");
 			}
 			DateFormat exifFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-			updateFromPhoto(photoUri, exifFormat.parse(exif.getAttribute(ExifInterface.TAG_DATETIME)), latlong[0], latlong[1]);
+			try {
+				date = exifFormat.parse(exif.getAttribute(ExifInterface.TAG_DATETIME));
+				updateDateTime();
+			}
+			catch (ParseException e) {
+				Log.e("RecordSightingActivity", "Error reading date from EXIF for file: "+photoUri, e);
+			}
+			updatePhoto();
 			
 		}
 		catch (IOException e) {
 			Log.e("RecordSightingActivity", "Error reading EXIF for file: "+photoUri, e);
 		}
-		catch (ParseException e) {
-			
+	}
+	
+	private void updatePhoto() {
+		
+		if (cameraFileUri != null) {
+			ImageView photo = (ImageView)findViewById(R.id.photoView);
+			photo.setImageBitmap(ImageHelper.bitmapFromFile(cameraFileUri, photo.getWidth(), photo.getHeight()));
 		}
 	}
 	
-	private void updateFromPhoto(Uri photoUri, Date dateTaken, float lat, float lon) {
+	private void updateLocation() {
+		Button locationButton = (Button)findViewById(R.id.locationButton);
 		
-		ImageView photo = (ImageView)findViewById(R.id.photoView);
-		photo.setVisibility(View.VISIBLE);
-		
-		photo.setImageBitmap(ImageHelper.bitmapFromFile(photoUri, photo.getWidth(), photo.getHeight()));
-		
-		updateDateTime(dateTaken);
-		
-		EditText locationField = (EditText)findViewById(R.id.locationField);
-		locationField.setText(String.format("Lat: %f, Lon: %f", lat, lon));
+		if (location != null) {
+			locationButton.setText(String.format("Lat: %f, Lon: %f", location.getLatitude(), location.getLongitude()));
+		}
+		else {
+			locationButton.setText("Unknown");
+		}
 	}
 	
-	private void updateDateTime(Date date) {
+	private void updateDateTime() {
+		
+		if (date == null) {
+			date = new Date();
+		}
+		
 		Button dateButton = (Button)findViewById(R.id.dateDisplay);
 		Button timeButton = (Button)findViewById(R.id.timeDisplay);
 		
