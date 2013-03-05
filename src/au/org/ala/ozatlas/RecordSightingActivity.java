@@ -74,6 +74,8 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	 * Used to identify a request to the Image Gallery when a result is returned
 	 */
 	public static final int SELECT_FROM_GALLERY_REQUEST = 20;
+	
+	public static final int SELECT_LOCATION_REQUEST = 30;
 
 	private String lsid;
 	private Uri cameraFileUri;
@@ -255,6 +257,15 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 				}
 			}
 		});
+		
+		final Button locationButton = (Button)findViewById(R.id.locationButton);
+		locationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				recordLocation();
+			}
+		});
 	}
 	
 	/**
@@ -281,7 +292,9 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    params.add("surveyId", "1");
 //	    params.kingdom = $("SubmitSightingTask", "#kingdom").val();
 //	    params.family = $("SubmitSightingTask", "#family").val();
-	    params.add("taxonID", lsid);
+	    if (lsid != null) {
+	    	params.add("taxonID", lsid);
+	    }
 	    TextView scientificName = (TextView)findViewById(R.id.scientificNameLabel);
 	    params.add("scientificName", scientificName.getText().toString());
 
@@ -331,7 +344,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		@Override
 		protected Boolean doInBackground(MultiValueMap<String, Object>... params) {
 			boolean success = false;
-			String url = "http://152.83.195.62:8082/mobileauth/proxy/submitRecordMultipart";
+			String url = "http://m.ala.org.au/mobileauth/proxy/submitRecordMultipart";
 			RestTemplate template = new RestTemplate(); // FormHttpMessageConverter is configured by default MultiValueMap<String,
 	        template.getMessageConverters().add(new FormHttpMessageConverter());
 	        try {
@@ -434,6 +447,12 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 				} else {
 					Log.e("CollectSurveyData", "Null data returned from gallery intent!" + data);
 				}
+			}
+		}
+		else if (requestCode == SELECT_LOCATION_REQUEST) {
+			if (resultCode == RESULT_OK) {
+				location = data.getParcelableExtra(RecordLocationActivity.LOCATION_KEY);
+				updateLocation();
 			}
 		}
 	}
@@ -540,6 +559,13 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		dateButton.setText(android.text.format.DateFormat.getDateFormat(this).format(date));
 		
 		timeButton.setText(android.text.format.DateFormat.getTimeFormat(this).format(date));
+	}
+	
+	private void recordLocation() {
+		Intent recordLocationIntent = new Intent(this, RecordLocationActivity.class);
+		recordLocationIntent.putExtra(RecordLocationActivity.LOCATION_KEY, location);
+		
+		startActivityForResult(recordLocationIntent, SELECT_LOCATION_REQUEST);
 	}
 	
 }

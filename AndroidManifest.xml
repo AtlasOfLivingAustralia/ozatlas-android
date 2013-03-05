@@ -70,10 +70,15 @@
             android:theme="@style/Theme.Sherlock.Light"
             android:windowSoftInputMode="stateHidden">
         </activity>
+        <activity
+            android:name="au.org.ala.ozatlas.RecordLocationActivity"
+            android:label="@string/title_record_location"
+            android:theme="@style/Theme.Sherlock">
+        </activity>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDOPFQ1cTfugt82nZw3WjOJr7g7W88KtNw" />
-
+			android:value="AIzaSyCyD75ig68FJJsU4gS7bYrhx_4_8MxvyK4"/>
+        <!--  android:value="AIzaSyDOPFQ1cTfugt82nZw3WjOJr7g7W88KtNw" /> -->
         <activity
             android:name="au.org.ala.ozatlas.LatestImagesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
