@@ -157,13 +157,15 @@
 	        android:text="@string/location_label"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	
-	    <EditText
-	        android:id="@+id/locationField"
-	        android:layout_width="wrap_content"
+	    <Button
+	        android:id="@+id/locationButton"
+	        style="@style/DateSpinner"
+	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:ems="10"
-	        android:inputType="textMultiLine"/>
-	
+	        android:textIsSelectable="true"
+	        android:drawableRight="@drawable/ic_menu_edit"/>
+	    
+	    	
 	</LinearLayout>
 	
     
