@@ -8,6 +8,7 @@ import android.location.Address;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,7 +45,8 @@ public abstract class SearchableMapActivity extends SherlockFragmentActivity imp
     	getSupportMenuInflater().inflate(R.menu.map_search_item, menu);
         
     	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+    	final MenuItem searchItem = (MenuItem) menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView)searchItem.getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);   
         
@@ -55,7 +57,8 @@ public abstract class SearchableMapActivity extends SherlockFragmentActivity imp
 
             public boolean onQueryTextSubmit(String query) {
             	SearchableMapActivity.this.geocode(query);
-                return true;
+            	searchItem.collapseActionView();
+            	return true;
             }
         };
         searchView.setOnQueryTextListener(queryTextListener);
