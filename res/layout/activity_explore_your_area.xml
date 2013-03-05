@@ -16,23 +16,9 @@
 	  android:layout_height="match_parent"
 	  android:layout_marginTop="@dimen/abs__action_bar_default_height"
 	  android:layout_marginBottom="@dimen/abs__action_bar_default_height"
-	  class="com.google.android.gms.maps.MapFragment">
+	  class="com.google.android.gms.maps.SupportMapFragment">
 	</fragment> 
 	
-    <EditText
-        android:id="@+id/locationSearchInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text"
-        android:singleLine="true"
-        android:imeOptions="actionSearch" 
-        android:textColor="#000000"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-       	android:layout_marginTop="60dp"
-        >
-    </EditText>		    
 	
    <TextView
        android:id="@+id/radius"

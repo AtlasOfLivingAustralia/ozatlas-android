@@ -21,4 +21,7 @@
     <string name="take_photo">Take Photo</string>
     <string name="pick_photo">Pick Photo</string>
     <string name="title_activity_latest_images">LatestImagesActivity</string>
+    <string name="title_record_location">Where you saw it</string>
+    <string name="no_location_found">No location found for that address</string>
+    <string name="search">Search</string>
 </resources>
