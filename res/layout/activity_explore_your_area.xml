@@ -15,6 +15,7 @@
 	  android:layout_width="match_parent"
 	  android:layout_height="match_parent"
 	  android:layout_marginTop="@dimen/abs__action_bar_default_height"
+	  android:layout_marginBottom="@dimen/abs__action_bar_default_height"
 	  class="com.google.android.gms.maps.MapFragment">
 	</fragment> 
 	
@@ -42,21 +43,19 @@
        android:textColor="#000000"
        android:text="RADIUS"
        android:layout_alignParentLeft="true"
-	   android:layout_alignParentBottom="true"
-	   android:layout_marginBottom="50dp"
+	   android:layout_alignParentTop="true"
+	   android:layout_marginTop="@dimen/abs__action_bar_default_height"
 	   android:layout_marginLeft="10dp"
     />    
     
 	<Button
 	    android:id="@+id/exploreGroups"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:layout_height="@dimen/abs__action_bar_default_height"
 	    android:text="View species for area"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentBottom="true"
-	    android:layout_above="@+id/radius"
-	    android:layout_marginLeft="10dp"
-	    android:textColor="#000000"
+	    android:textColor="#FFFFFF"
 	 />
 				
 </RelativeLayout>

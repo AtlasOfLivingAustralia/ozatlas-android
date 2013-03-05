@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Point;
 import android.location.Address;
 import android.location.GpsStatus.Listener;
 import android.location.Location;
@@ -241,6 +241,7 @@ public class ExploreYourAreaActivity extends Activity implements GeocodeCallback
         	
         TextView radiusView = (TextView) ExploreYourAreaActivity.this.findViewById(R.id.radius);
         radiusView.setText(formatTheRadius(radiusInMeters));
+        radiusView.setShadowLayer(20, 0, 0, Color.WHITE);
         this.radiusInMeters = (int) radiusInMeters;
 	}    
     
