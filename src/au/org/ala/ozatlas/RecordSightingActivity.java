@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Intent;
@@ -42,6 +43,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar.LayoutParams;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -78,6 +80,8 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	private Location location;
 	private Date date;
 	
+	private SubmitSightingTask submitSightingTask;
+	private ProgressDialog progressDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +114,12 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			}
 		});
 		
+		submitSightingTask = (SubmitSightingTask)getLastNonConfigurationInstance();
+		if (submitSightingTask != null) {
+			submitSightingTask.attach(this);
+			showProgressDialog();
+		}
+		
 		addEventHandlers();
 	}
 	
@@ -127,6 +137,23 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		}
 	}
 	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return submitSightingTask;
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (progressDialog != null) {
+			progressDialog.dismiss();
+		}
+	}
+	
+	private void showProgressDialog() {
+		progressDialog = ProgressDialog.show(this, "", "Recording your sighting...");
+	}
+	
 	private void buildCustomActionBar() {
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -138,7 +165,8 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			@SuppressWarnings("unchecked")
 			@Override
 			public void onClick(View v) {
-				new SubmitSightingTask().execute(getRecordData("chris.godwin.ala@gmail.com", ""));	
+				showProgressDialog();
+				new SubmitSightingTask(RecordSightingActivity.this).execute(getRecordData("chris.godwin.ala@gmail.com", ""));	
 			}
 		});
 		customNav.findViewById(R.id.action_cancel).setOnClickListener(new OnClickListener() {
@@ -229,6 +257,23 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		});
 	}
 	
+	/**
+	 * Callback from the SubmitRecordTask when it completes.
+	 * @param success true if the submit was successful.
+	 */
+	public void recordSubmitComplete(boolean success) {
+		if (progressDialog != null) {
+			progressDialog.dismiss();
+		}
+		if (success) {
+			Toast.makeText(this, "Your sighting has been submitted", Toast.LENGTH_LONG).show();
+			finish();
+		}
+		else {
+			Toast.makeText(this, "There was an error recording your sighting.\n Please try again later.", Toast.LENGTH_LONG).show();
+			
+		}
+	}
 	
 	public MultiValueMap<String, Object> getRecordData(String userName, String authKey) {
 	    Log.i("SubmitSightingTask", "Constructing data object for POST...");
@@ -275,28 +320,40 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    return params;
 	}
 	
-	public static class SubmitSightingTask extends AsyncTask<MultiValueMap<String, Object>, Void, Void> {
+	public static class SubmitSightingTask extends AsyncTask<MultiValueMap<String, Object>, Void, Boolean> {
 
-		@Override
-		protected Void doInBackground(MultiValueMap<String, Object>... params) {
-//			HttpClient http = HttpUtil.getTolerantClient();
-//			final String searchUrl = "https://m.ala.org.au/search.json?pageSize=30&q="  + URLEncoder.encode("koala", "utf-8");
-//			System.out.println("SEARCH URL : " + searchUrl);
-//			
-//			HttpGet get = new HttpGet(searchUrl);
-//			HttpResponse response = http.execute(get);
-//			InputStream input = response.getEntity().getContent();
-			post("http://192.168.0.4:8082/mobileauth/proxy/submitRecordMultipart", params[0]);
-			
-			return null;
+		private RecordSightingActivity ctx;
+		
+		public SubmitSightingTask(RecordSightingActivity ctx) {
+			attach(ctx);
 		}
-	
-		public void post(String url, MultiValueMap<String, Object> formData) {
+		
+		@Override
+		protected Boolean doInBackground(MultiValueMap<String, Object>... params) {
+			boolean success = false;
+			String url = "http://152.83.195.62:8082/mobileauth/proxy/submitRecordMultipart";
 			RestTemplate template = new RestTemplate(); // FormHttpMessageConverter is configured by default MultiValueMap<String,
 	        template.getMessageConverters().add(new FormHttpMessageConverter());
-			// String> form =
-			
-			 template.postForLocation(url, formData);
+	        try {
+	        	Map<String, Object> response = template.postForObject(url, params[0], Map.class);
+	        	Log.d("RecordSightingActivity", response.toString());
+	        	success = (Boolean)response.get("success");
+	        }
+	        catch (Exception e) {
+	        	Log.e("RecordSightingActivity", "Error recording sighting: ", e);
+	        }
+			return success;
+		}
+		
+		
+	
+		@Override
+		protected void onPostExecute(Boolean result) {
+			ctx.recordSubmitComplete(result);
+		}
+		
+		void attach(RecordSightingActivity ctx) {
+			this.ctx = ctx;
 		}
 	}
 	
