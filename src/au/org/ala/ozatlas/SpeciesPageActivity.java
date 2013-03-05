@@ -27,16 +27,21 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 		List<ImageDTO> speciesImages = (List<ImageDTO>) data.get("speciesImages");
 
 		if(speciesImages != null && !speciesImages.isEmpty()){
-			
 			ImageDTO image = speciesImages.get(0); 
 			LoadImageTask lit = new LoadImageTask();
 			lit.setImageView(speciesImage);
 			lit.execute(image.getLargeImageUrl());
 			//add metadata
-			if(image.creator != null)
+			if(image.creator != null){
 				((TextView)findViewById(R.id.speciesImageCreator)).setText("Image by: " + image.creator);
-			if(image.infoSourceName != null)
+			} else {
+				findViewById(R.id.speciesImageCreator).setVisibility(TextView.GONE);				
+			}
+			if(image.infoSourceName != null){
 				((TextView)findViewById(R.id.speciesImageSource)).setText("Source: " + image.infoSourceName);
+			} else {
+				findViewById(R.id.speciesImageSource).setVisibility(TextView.GONE);
+			}
 		} else {
 			speciesImage.setVisibility(ImageView.GONE);
 			findViewById(R.id.speciesImageCreator).setVisibility(TextView.GONE);

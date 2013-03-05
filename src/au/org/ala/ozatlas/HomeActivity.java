@@ -34,8 +34,19 @@ public class HomeActivity extends Activity {
 	        public void onClick(View view) {                 
 	            System.out.println("Starting Species search activity.....");
 	        	Intent myIntent = new Intent(HomeActivity.this, SpeciesSearchActivity.class);
+	        	myIntent.putExtra("followupActivity", SpeciesSearchActivity.SPECIES_PAGE);
 	        	HomeActivity.this.startActivity(myIntent);
 	        }
-	    });		    
+	    });	
+		
+		final Button recordSightingButton = (Button) findViewById(R.id.recordSighting); 
+		recordSightingButton.setOnClickListener(new View.OnClickListener() {
+	        public void onClick(View view) {                 
+	            System.out.println("Starting Species record sighting activity.....");
+	        	Intent myIntent = new Intent(HomeActivity.this, SpeciesSearchActivity.class);
+	        	myIntent.putExtra("followupActivity", SpeciesSearchActivity.RECORD_SIGHTING);
+	        	HomeActivity.this.startActivity(myIntent);
+	        }
+	    });			
 	}
 }

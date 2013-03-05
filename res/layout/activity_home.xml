@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/backgroundblue"
     tools:context=".HomeActivity" 
-    android:layout_marginTop="?android:attr/actionBarSize">
+    android:layout_marginTop="@dimen/abs__action_bar_default_height">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,16 +12,22 @@
         android:orientation="vertical" >
 
         <Button
-            android:id="@+id/exploreYourArea"
+            android:id="@+id/recordSighting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Explore Your Area" />
-
+            android:text="Record a sighting" />            
+        
         <Button
             android:id="@+id/speciesSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Species search" />
+            android:text="Species search" />        
+        
+        <Button
+            android:id="@+id/exploreYourArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Explore Your Area" />
 
     </LinearLayout>
     

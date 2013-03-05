@@ -14,13 +14,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 /**
  * Species search 
@@ -31,6 +32,7 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
 
 	protected Context context;	
 	protected ListView listView;
+	protected Class<Activity> followupActivity;
 	
 	@Override
 	protected List<Map<String,Object>> doInBackground(String... args) {
@@ -78,10 +80,12 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
         listView.setAdapter(adapter);	
         listView.setOnItemClickListener(new OnItemClickListener(){
 		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
-		    	Intent myIntent = new Intent(SpeciesSearchTask.this.context, SpeciesPageActivity.class);
+		    	Intent myIntent = new Intent(SpeciesSearchTask.this.context, SpeciesSearchTask.this.followupActivity);
 				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
-		    	String guid = (String) li.get("guid");		    	
-		    	myIntent.putExtra("guid", guid);
+		    	myIntent.putExtra("guid", (String) li.get("guid"));
+		    	myIntent.putExtra("scientificName", (String) li.get("scientificName"));
+		    	myIntent.putExtra("commonName", (String) li.get("commonName"));
+		    	myIntent.putExtra("speciesImageUrl", (String) li.get("smallImageUrl"));
 		    	SpeciesSearchTask.this.context.startActivity(myIntent);
 		    }
 		});	        
@@ -93,5 +97,9 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
 	
 	public void setListView(ListView listView) {
 		this.listView = listView;
+	}
+
+	public void setFollowupActivity(Class<Activity> followupActivity) {
+		this.followupActivity = followupActivity;
 	}
 }

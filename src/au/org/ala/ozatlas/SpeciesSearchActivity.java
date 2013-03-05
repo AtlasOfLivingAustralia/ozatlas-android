@@ -1,6 +1,7 @@
 package au.org.ala.ozatlas;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -11,19 +12,30 @@ import android.widget.ListView;
 
 public class SpeciesSearchActivity extends ListActivity  {
 
+	public static final String RECORD_SIGHTING = "recordSighting";
+	public static final String SPECIES_PAGE = "speciesPage";
+	
+	protected Class followupActivityClass = SpeciesPageActivity.class; 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_species_search);
+		
+		//whats the followup action for this activity ?
+		Intent intent = getIntent();
+		if(intent != null && intent.getExtras() != null){
+			String followupActivity = intent.getExtras().getString("followupActivity");
+			if(followupActivity != null && RECORD_SIGHTING.equals(followupActivity)){
+				this.followupActivityClass = RecordSightingActivity.class;
+			}
+		}
+		
 		final EditText searchText = (EditText) findViewById(R.id.speciesSearchInput);
-		searchText.setOnKeyListener(new OnKeyListener()
-		{
-		    public boolean onKey(View v, int keyCode, KeyEvent event)
-		    {
-		        if (event.getAction() == KeyEvent.ACTION_DOWN)
-		        {
-		            switch (keyCode)
-		            {
+		searchText.setOnKeyListener(new OnKeyListener(){
+		    public boolean onKey(View v, int keyCode, KeyEvent event){
+		        if (event.getAction() == KeyEvent.ACTION_DOWN){
+		            switch (keyCode){
 		                case KeyEvent.KEYCODE_DPAD_CENTER:
 		                case KeyEvent.KEYCODE_ENTER:
 		                	search(searchText.getText().toString());
@@ -49,12 +61,12 @@ public class SpeciesSearchActivity extends ListActivity  {
 		SpeciesSearchTask sst = new SpeciesSearchTask();
 		sst.setListView((ListView) findViewById(android.R.id.list));
 		sst.setContext(this);
+		sst.setFollowupActivity(this.followupActivityClass);
 		sst.execute(text);
 	}	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.species_search, menu);
 		return true;
 	}
