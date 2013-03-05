@@ -10,8 +10,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.annotate.JsonAnyGetter;
+import org.codehaus.jackson.map.JsonDeserializer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -30,6 +34,7 @@ import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -297,7 +302,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    }
 	    TextView scientificName = (TextView)findViewById(R.id.scientificNameLabel);
 	    params.add("scientificName", scientificName.getText().toString());
-
+	    params.add("survey_species_search", scientificName.getText().toString());
 	    TextView commonName = (TextView)findViewById(R.id.commonNameLabel);
 	    params.add("commonName", commonName.getText().toString());
 	    
@@ -306,18 +311,19 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    if (location != null) {
 	    	params.add("latitude", Double.toString(location.getLatitude()));
 	    	params.add("longitude", Double.toString(location.getLongitude()));
-	        params.add("accuracyInMeters", Float.toString(location.getAccuracy()));
+	    	if (location.hasAccuracy()) {
+	    		params.add("accuracyInMeters", Float.toString(location.getAccuracy()));
+	    	}
 	    }
 	    params.add("deviceName", android.os.Build.MODEL);
 	    
 	    params.add("deviceId", android.os.Build.SERIAL);
 	    params.add("devicePlatform", "android");
-	    params.add("deviceVersion", new android.os.Build.VERSION().toString());
+	    params.add("deviceVersion", Build.VERSION.CODENAME + Build.VERSION.SDK_INT);
 
 	    //	    params.user = userName.toLowerCase();
-//	    params.userName = userName.toLowerCase();
-//	    Log.i("SubmitSightingTask", "user: " + params.user);
-//	    params.authenticationKey = authKey;
+	    params.add("userName", userName.toLowerCase());
+	    params.add("authenticationKey", "");//  authKey;
 //	    Log.i("SubmitSightingTask", "auth key: " + params.authenticationKey);
 	    Button date = (Button)findViewById(R.id.dateDisplay);
 	    params.add("date", date.getText().toString());
@@ -326,7 +332,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    EditText notes = (EditText)findViewById(R.id.notesField);
 	    params.add("notes", notes.getText().toString());
 	    if (cameraFileUri != null) {
-	    	params.add("attribute_1", new FileSystemResource(cameraFileUri.getPath()));
+	    	params.add("attribute_file_1", new FileSystemResource(cameraFileUri.getPath()));
 	    }
 	    EditText number = (EditText)findViewById(R.id.howManyField);
 	    params.add("number", number.getText().toString());
@@ -344,13 +350,16 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		@Override
 		protected Boolean doInBackground(MultiValueMap<String, Object>... params) {
 			boolean success = false;
-			String url = "http://m.ala.org.au/mobileauth/proxy/submitRecordMultipart";
-			RestTemplate template = new RestTemplate(); // FormHttpMessageConverter is configured by default MultiValueMap<String,
+			String url = "https://m.ala.org.au/submit/recordMultiPart";
+			RestTemplate template = new RestTemplate(); 
 	        template.getMessageConverters().add(new FormHttpMessageConverter());
+	        template.getMessageConverters().add(new StringHttpMessageConverter());
+	        
 	        try {
-	        	Map<String, Object> response = template.postForObject(url, params[0], Map.class);
+	        	String response = template.postForObject(url, params[0], String.class);
 	        	Log.d("RecordSightingActivity", response.toString());
-	        	success = (Boolean)response.get("success");
+	        	
+	        	success = true;
 	        }
 	        catch (Exception e) {
 	        	Log.e("RecordSightingActivity", "Error recording sighting: ", e);
