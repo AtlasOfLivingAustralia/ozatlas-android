@@ -41,6 +41,8 @@
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentBottom="true"
 	    android:textColor="#FFFFFF"
+	    android:textAppearance="@style/TextAppearance.Sherlock.Widget.ActionBar.Menu"
+       style="@style/Widget.Sherlock.ActionBar.Solid"
 	 />
 				
 </RelativeLayout>

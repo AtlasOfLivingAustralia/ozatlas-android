@@ -15,19 +15,22 @@
             android:id="@+id/recordSighting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Record a sighting" />            
+            android:text="Record a sighting" 
+            style="@style/ButtonBarButton"/>            
         
         <Button
             android:id="@+id/speciesSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Species search" />        
+            android:text="Species search"
+            style="@style/ButtonBarButton" />        
         
         <Button
             android:id="@+id/exploreYourArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Explore Your Area" />
+            android:text="Explore Your Area"
+            style="@style/ButtonBarButton" />
 
     </LinearLayout>
     

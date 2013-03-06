@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:divider="?dividerVertical"
+  
     android:dividerPadding="12dip"
     android:showDividers="middle">
 
@@ -15,7 +15,7 @@
             android:src="@drawable/ic_menu_close_clear_cancel"
             style="@style/CustomActionButtonImage" />
         <TextView
-            android:text="Cancel"
+            android:text="@string/cancel"
             style="@style/CustomActionButtonText" />
 
     </LinearLayout>
