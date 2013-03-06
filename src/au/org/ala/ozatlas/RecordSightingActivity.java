@@ -10,9 +10,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.annotate.JsonAnyGetter;
 import org.codehaus.jackson.map.JsonDeserializer;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -22,19 +24,24 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -173,12 +180,11 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 
 		customNav.findViewById(R.id.action_done).setOnClickListener(new OnClickListener() {
 			
-			@SuppressWarnings("unchecked")
 			@Override
 			public void onClick(View v) {
-				showProgressDialog();
-				new SubmitSightingTask(RecordSightingActivity.this).execute(getRecordData("chris.godwin.ala@gmail.com", ""));	
+				validateAndSubmit();	
 			}
+
 		});
 		customNav.findViewById(R.id.action_cancel).setOnClickListener(new OnClickListener() {
 			
@@ -277,6 +283,26 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		});
 	}
 	
+	private void validateAndSubmit() {
+		if (cameraFileUri != null) {
+			showProgressDialog();
+			new SubmitSightingTask(RecordSightingActivity.this).execute(getRecordData());
+		}
+		else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			builder.setTitle(R.string.attach_photo_title);
+			builder.setMessage(R.string.attach_photo_message);
+			builder.setNegativeButton(R.string.close, new Dialog.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			builder.show();
+		}
+	}
+	
 	/**
 	 * Callback from the SubmitRecordTask when it completes.
 	 * @param success true if the submit was successful.
@@ -286,21 +312,20 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			progressDialog.dismiss();
 		}
 		if (success) {
-			Toast.makeText(this, "Your sighting has been submitted", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getResources().getString(R.string.record_sighting_success), Toast.LENGTH_LONG).show();
 			finish();
 		}
 		else {
-			Toast.makeText(this, "There was an error recording your sighting.\n Please try again later.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getResources().getString(R.string.record_sighting_failed), Toast.LENGTH_LONG).show();
 			
 		}
 	}
 	
-	public MultiValueMap<String, Object> getRecordData(String userName, String authKey) {
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	public MultiValueMap<String, Object> getRecordData() {
 	    Log.i("SubmitSightingTask", "Constructing data object for POST...");
 	    MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
 	    params.add("surveyId", "1");
-//	    params.kingdom = $("SubmitSightingTask", "#kingdom").val();
-//	    params.family = $("SubmitSightingTask", "#family").val();
 	    if (lsid != null) {
 	    	params.add("taxonID", lsid);
 	    }
@@ -310,8 +335,6 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    TextView commonName = (TextView)findViewById(R.id.commonNameLabel);
 	    params.add("commonName", commonName.getText().toString());
 	    
-//	    params.locationName = $("SubmitSightingTask", "#locality").val();
-//	    Log.i("SubmitSightingTask", "locationName: " + params.locationName);
 	    if (location != null) {
 	    	params.add("latitude", Double.toString(location.getLatitude()));
 	    	params.add("longitude", Double.toString(location.getLongitude()));
@@ -321,7 +344,10 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    }
 	    params.add("deviceName", android.os.Build.MODEL);
 	    
-	    params.add("deviceId", android.os.Build.SERIAL);
+	    if (Build.VERSION.SDK_INT >= VERSION_CODES.GINGERBREAD) {
+	    	
+	    	params.add("deviceId", android.os.Build.SERIAL);
+	    }
 	    params.add("devicePlatform", "android");
 	    params.add("deviceVersion", Build.VERSION.CODENAME + Build.VERSION.SDK_INT);
 
@@ -364,8 +390,10 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	        try {
 	        	String response = template.postForObject(url, params[0], String.class);
 	        	Log.d("RecordSightingActivity", response.toString());
-	        	
-	        	success = true;
+	        	ObjectMapper om = new ObjectMapper();
+				JsonNode node = om.readTree(response);
+				JsonNode successNode = node.get("success");
+	        	success = successNode.getBooleanValue();
 	        }
 	        catch (Exception e) {
 	        	Log.e("RecordSightingActivity", "Error recording sighting: ", e);

@@ -36,4 +36,10 @@
     <string name="login_failed_title">Login failed</string>
     <string name="title_login_activity">Login</string>
     <string name="login_instructions">To record a sighting, please login using the user name and password you used to register with the Atlas of Living Australia</string>
+	<string name="attach_photo_title">Photo required</string>
+	<string name="attach_photo_message">Please attach a photo before submitting your sighting</string>
+	<string name="record_sighting_success">Thankyou.  Your sighting has been recorded.</string>
+	<string name="record_sighting_failed">There was an error recording your sighting.\n Please try again later.</string>
+	
+	
 </resources>
