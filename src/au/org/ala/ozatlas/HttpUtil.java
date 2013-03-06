@@ -6,6 +6,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 public class HttpUtil {
 
+	
+	private static final String SERVER_URL = "https://m.ala.org.au";
+	
 	public static DefaultHttpClient getTolerantClient() {
 	    DefaultHttpClient client = new DefaultHttpClient();
 	    SSLSocketFactory sslSocketFactory = (SSLSocketFactory) client
@@ -16,5 +19,9 @@ public class HttpUtil {
 	        sslSocketFactory.setHostnameVerifier(new MyVerifier(delegate));
 	    }
 	    return client;
+	}
+	
+	public static String getLoginUrl() {
+		return SERVER_URL + "/mobileauth/mobileKey/generateKey";
 	}
 }

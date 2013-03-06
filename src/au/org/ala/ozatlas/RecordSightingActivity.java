@@ -81,6 +81,8 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	public static final int SELECT_FROM_GALLERY_REQUEST = 20;
 	
 	public static final int SELECT_LOCATION_REQUEST = 30;
+	
+	public static final int LOGIN_REQUEST = 40;
 
 	private String lsid;
 	private Uri cameraFileUri;
@@ -93,6 +95,8 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		checkForLogin();
 		
 		setContentView(R.layout.activity_record_sighting);
 		buildCustomActionBar();
@@ -321,12 +325,14 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	    params.add("devicePlatform", "android");
 	    params.add("deviceVersion", Build.VERSION.CODENAME + Build.VERSION.SDK_INT);
 
-	    //	    params.user = userName.toLowerCase();
-	    params.add("userName", userName.toLowerCase());
-	    params.add("authenticationKey", "");//  authKey;
-//	    Log.i("SubmitSightingTask", "auth key: " + params.authenticationKey);
-	    Button date = (Button)findViewById(R.id.dateDisplay);
-	    params.add("date", date.getText().toString());
+	    CredentialsStorage storage = new CredentialsStorage(this);
+	    params.add("userName", storage.getUsername().toLowerCase());
+	    params.add("authenticationKey", storage.getAuthToken());
+	    
+	    DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    if (date != null) {
+	    	params.add("date", isoFormat.format(date));		    
+	    }
 	    Button time = (Button)findViewById(R.id.timeDisplay);
 	    params.add("time", time.getText().toString());
 	    EditText notes = (EditText)findViewById(R.id.notesField);
@@ -376,6 +382,14 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		
 		void attach(RecordSightingActivity ctx) {
 			this.ctx = ctx;
+		}
+	}
+	
+	private void checkForLogin() {
+		CredentialsStorage storage = new CredentialsStorage(this);
+		if (!storage.isAuthenticated()) {
+			Intent loginIntent = new Intent(this, LoginActivity.class);
+			startActivityForResult(loginIntent, LOGIN_REQUEST);
 		}
 	}
 	
@@ -464,6 +478,11 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 				updateLocation();
 			}
 		}
+		else if (requestCode == LOGIN_REQUEST) {
+			if (resultCode != RESULT_OK) {
+				finish();
+			}
+		}
 	}
 	
 	private void queryPhotoMetadata(Uri photoUri, String selection, String[] selectionArgs) {
@@ -504,8 +523,10 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		else {
 			Log.d("", "no meatdata!");
 		}
+		cursor.close();
 	}
 
+	
 	@SuppressLint("SimpleDateFormat")
 	private void readPhotoMetadata(Uri photoUri) {
 		try {

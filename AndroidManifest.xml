@@ -75,6 +75,12 @@
             android:label="@string/title_record_location"
             android:theme="@style/Theme.Sherlock">
         </activity>
+        <activity
+            android:name="au.org.ala.ozatlas.LoginActivity"
+            android:label="@string/title_login_activity"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
+            android:screenOrientation="portrait">
+        </activity>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
 			android:value="AIzaSyCyD75ig68FJJsU4gS7bYrhx_4_8MxvyK4"/>

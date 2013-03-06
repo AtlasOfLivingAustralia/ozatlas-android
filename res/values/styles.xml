@@ -67,5 +67,8 @@
         <item name="android:padding">4dp</item>
     </style>
     
+    <style name="instructions">
+        <item name="android:background">@color/light_yellow</item>
+    </style>
     
 </resources>
