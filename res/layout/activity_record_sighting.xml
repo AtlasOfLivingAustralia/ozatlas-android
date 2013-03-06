@@ -16,7 +16,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="3dp"
-        android:background="@drawable/rounded_rectangle"
+        android:background="@drawable/yellow_rounded_rectangle"
         >
         
         <TextView 

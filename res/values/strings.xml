@@ -17,7 +17,7 @@
     <string name="title_record_sighting">Record Sighting</string>
     <string name="location_label">Where?</string>
     <string name="photo_description">Your photo</string>
-    <string name="sighting_header_text">Record your sighting of:</string>
+    <string name="sighting_header_text">Please supply a photo and enter details of your sighting below</string>
     <string name="take_photo">Take Photo</string>
     <string name="pick_photo">Pick Photo</string>
     <string name="title_activity_latest_images">LatestImagesActivity</string>
