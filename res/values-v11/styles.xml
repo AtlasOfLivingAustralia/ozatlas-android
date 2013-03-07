@@ -9,6 +9,10 @@
         <!-- API 11 theme customizations can go here. -->
     </style>
 
+    <style name="ButtonBarButton" parent="@android:style/Widget.Holo.Button">
+        <!-- <item name="android:textColor">@android:color/white</item>
+         -->
+    </style>
     <!-- <style name="FullscreenActionBarStyle" parent="@style/Widget.Sherlock.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>

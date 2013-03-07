@@ -10,9 +10,8 @@
        android:layout_height="wrap_content"
        android:layout_alignParentLeft="true"
        android:layout_alignParentBottom="true"
-       android:text="Set Location"
-       android:textAppearance="@style/TextAppearance.Sherlock.Widget.ActionBar.Menu"
-       style="@style/Widget.Sherlock.ActionBar.Solid"/>
+       android:text="SET LOCATION"
+       style="@style/ActionBarButton"/>
    
 	<fragment
 	  android:id="@+id/map"

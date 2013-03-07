@@ -1,7 +1,6 @@
 package au.org.ala.ozatlas;
 
-import java.util.List;
-
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,17 +9,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.location.Address;
 import android.location.GpsStatus.Listener;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -192,6 +188,7 @@ public class ExploreYourAreaActivity extends SearchableMapActivity {
         });
 	}
 
+	@TargetApi(8)
 	private void updateTheRadius() {
 		VisibleRegion visibleRegion = ExploreYourAreaActivity.this.map.getProjection().getVisibleRegion();
         
@@ -206,7 +203,13 @@ public class ExploreYourAreaActivity extends SearchableMapActivity {
         //get window width in decimal degrees
         Display display = getWindowManager().getDefaultDisplay();
         
-        int rotation = display.getRotation();
+        int rotation;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+        	rotation = display.getRotation();
+        }
+        else {
+        	rotation = display.getOrientation();
+        }
         double width = - 1;
         if(rotation == 0 || rotation == 180){
         	width = (double) display.getWidth();

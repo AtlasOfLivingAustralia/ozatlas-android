@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.annotate.JsonAnyGetter;
-import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -27,15 +24,15 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -123,14 +120,6 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		updateDateTime();
 		updateLocation();
 		
-		// We have to do this later (hence the post) as the ImageView won't 
-		// have been layed out yet so will have zero size.
-		ImageView photoView = (ImageView)findViewById(R.id.photoView);
-		photoView.post(new Runnable() {
-			public void run() {
-				updatePhoto();
-			}
-		});
 		
 		submitSightingTask = (SubmitSightingTask)getLastNonConfigurationInstance();
 		if (submitSightingTask != null) {
@@ -141,6 +130,19 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		addEventHandlers();
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+		// We have to do this later (hence the post) as the ImageView won't 
+		// necessarily have been layed out yet so will have zero size.
+		ImageView photoView = (ImageView)findViewById(R.id.photoView);
+		photoView.post(new Runnable() {
+			public void run() {
+				updatePhoto();
+			}
+		});
+				
+	}
 	@Override
 	protected void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
@@ -590,7 +592,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		
 		if (cameraFileUri != null) {
 			ImageView photo = (ImageView)findViewById(R.id.photoView);
-			photo.setImageBitmap(ImageHelper.bitmapFromFile(cameraFileUri, photo.getWidth(), photo.getHeight()));
+			new UpdatePhotoTask(cameraFileUri, photo.getWidth(), photo.getHeight()).execute();
 		}
 	}
 	
@@ -624,6 +626,34 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		recordLocationIntent.putExtra(RecordLocationActivity.LOCATION_KEY, location);
 		
 		startActivityForResult(recordLocationIntent, SELECT_LOCATION_REQUEST);
+	}
+	
+	private class UpdatePhotoTask extends AsyncTask<String, Void, Bitmap> {
+
+		private int width;
+		private int height;
+		private Uri uri;
+		
+		public UpdatePhotoTask(Uri photoUri, int width, int height) {
+			this.uri = photoUri;
+			this.width = width;
+			this.height = height;
+		}
+		@Override
+		protected Bitmap doInBackground(String... params) {
+			if (height == 0 || width == 0) {
+				height = 300;
+				width = 300;
+			}
+			return ImageHelper.bitmapFromFile(uri, width, height);
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			ImageView view = (ImageView)findViewById(R.id.photoView);
+			view.setImageBitmap(result);
+		}
+		
 	}
 	
 }

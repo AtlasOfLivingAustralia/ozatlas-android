@@ -2,35 +2,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-  
+    android:divider="@drawable/abs__list_divider_holo_dark"
     android:dividerPadding="12dip"
     android:showDividers="middle">
 
     <!-- id must match corresponding menu item id -->
     <LinearLayout
         android:id="@+id/action_cancel"
-        style="@style/CustomActionButton">
+        style="@style/EditEventCustomActionButton">
 
         <ImageView
             android:src="@drawable/ic_menu_close_clear_cancel"
-            style="@style/CustomActionButtonImage" />
+            style="@style/EditEventCustomActionButtonImage" />
         <TextView
             android:text="@string/cancel"
-            style="@style/CustomActionButtonText" />
+            android:textColor="#FFFFFF"
+            style="@style/EditEventCustomActionButtonText" />
 
     </LinearLayout>
 
     <!-- id must match corresponding menu item id -->
     <LinearLayout
         android:id="@+id/action_done"
-        style="@style/CustomActionButton">
+        style="@style/EditEventCustomActionButton">
 
         <ImageView
             android:src="@drawable/ic_menu_send"
-            style="@style/CustomActionButtonImage" />
+            style="@style/EditEventCustomActionButtonImage" />
         <TextView
             android:text="Submit"
-            style="@style/CustomActionButtonText" />
+            android:textColor="#FFFFFF"
+            style="@style/EditEventCustomActionButtonText" />
 
     </LinearLayout>
 

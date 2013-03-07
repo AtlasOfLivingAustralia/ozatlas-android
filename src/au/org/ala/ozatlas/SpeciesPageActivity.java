@@ -3,22 +3,23 @@ package au.org.ala.ozatlas;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
 
 /**
  * Load a species page
  * 
  * @author davemartin
  */
-public class SpeciesPageActivity extends Activity implements RenderPage{
+public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 
 	@Override
 	public void render(Map<String, Object> data) {
@@ -253,7 +254,7 @@ public class SpeciesPageActivity extends Activity implements RenderPage{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.species_page, menu);
+		getSupportMenuInflater().inflate(R.menu.species_page, menu);
 		return true;
 	}
 }

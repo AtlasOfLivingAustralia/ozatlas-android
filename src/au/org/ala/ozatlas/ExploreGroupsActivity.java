@@ -1,14 +1,13 @@
 package au.org.ala.ozatlas;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.widget.ListView;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
 
-public class ExploreGroupsActivity extends Activity implements LoadGroup {
+public class ExploreGroupsActivity extends SherlockActivity implements LoadGroup {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class ExploreGroupsActivity extends Activity implements LoadGroup {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.explore_groups, menu);
+		getSupportMenuInflater().inflate(R.menu.explore_groups, menu);
 		return true;
 	}
 

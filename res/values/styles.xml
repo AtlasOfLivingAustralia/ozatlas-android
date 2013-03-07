@@ -22,8 +22,7 @@
         <item name="buttonBarButtonStyle">@style/ButtonBarButton</item> -->
     </style>
 
-    <style name="ButtonBarButton">
-        <item name="android:textColor">@android:color/white</item>
+    <style name="ButtonBarButton" parent="@android:style/Widget.Button">
         
     </style>
 
@@ -35,12 +34,12 @@
         <item name="android:background">@android:drawable/bottom_bar</item>
     </style>
 
-    <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
+ <!--    <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
         <item name="buttonBarStyle">@style/ButtonBar</item>
         <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
-    </style>
+    </style> -->
 
     
   <style name="DateSpinner" parent="@style/Sherlock.__Widget.Holo.Spinner">
@@ -49,7 +48,7 @@
     </style>
     
      <!-- Used for the custom action bar in the RecordSightingActivity -->
-    <style name="CustomActionButton" parent="@style/Widget.Sherlock.Light.ActionButton">
+    <style name="EditEventCustomActionButton" parent="@style/Widget.Sherlock.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
@@ -57,17 +56,16 @@
         <item name="android:orientation">horizontal</item>
     </style>
 
-    <style name="CustomActionButtonImage">
+    <style name="EditEventCustomActionButtonImage">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:padding">4dp</item>
     </style>
 
-    <style name="CustomActionButtonText">
+    <style name="EditEventCustomActionButtonText" parent="Theme.Sherlock.Light">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:textAppearance">?android:attr/actionMenuTextAppearance</item>
-        <item name="android:textColor">?android:attr/actionMenuTextColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.Sherlock.Widget.ActionBar.Menu</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>
@@ -78,4 +76,9 @@
         <item name="android:background">@color/light_yellow</item>
     </style>
     
+    <style name="ActionBarButton" parent="@style/Widget.Sherlock.ActionButton">
+    	<item name="android:textAppearance">@style/TextAppearance.Sherlock.Widget.ActionBar.Menu</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@android:color/black</item>
+    </style>
 </resources>

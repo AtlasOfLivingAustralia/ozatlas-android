@@ -37,12 +37,10 @@
 	    android:id="@+id/exploreGroups"
 	    android:layout_width="match_parent"
 	    android:layout_height="@dimen/abs__action_bar_default_height"
-	    android:text="View species for area"
+	    android:text="VIEW SPECIES FOR AREA"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentBottom="true"
-	    android:textColor="#FFFFFF"
-	    android:textAppearance="@style/TextAppearance.Sherlock.Widget.ActionBar.Menu"
-       style="@style/Widget.Sherlock.ActionBar.Solid"
+	    style="@style/ActionBarButton"
 	 />
 				
 </RelativeLayout>

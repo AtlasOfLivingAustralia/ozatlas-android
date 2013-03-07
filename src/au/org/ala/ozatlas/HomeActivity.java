@@ -1,10 +1,12 @@
+
 package au.org.ala.ozatlas;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import com.actionbarsherlock.app.SherlockActivity;
 
 
 /**
@@ -13,7 +15,7 @@ import android.widget.Button;
  * 
  * @see SystemUiHider
  */
-public class HomeActivity extends Activity {
+public class HomeActivity extends SherlockActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
