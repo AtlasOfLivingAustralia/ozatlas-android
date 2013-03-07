@@ -37,7 +37,8 @@
 	        android:layout_below="@id/headerText"
 	        android:layout_margin="5dp"
 	        android:contentDescription="@string/photo_description"
-	        android:src="@drawable/background" />
+	        android:src="@drawable/background" 
+	        android:scaleType="centerInside"/>
 	
 	    <TextView
 	        android:id="@+id/commonNameLabel"
@@ -77,9 +78,10 @@
 	        android:layout_height="200dp"
 	        android:layout_weight="0.6"
 	        android:drawable="@drawable/no_photo"
-	        android:scaleType="fitXY"
+	        android:scaleType="centerCrop"
 	        android:layout_marginRight="3dp"
 	        android:layout_marginLeft="3dp"
+	        android:background="@android:color/background_light"
 	        android:src="@drawable/no_photo" />
 
 	    <LinearLayout

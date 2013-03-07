@@ -1,7 +1,10 @@
 package au.org.ala.ozatlas;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -168,6 +171,12 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		if (progressDialog != null) {
 			progressDialog.dismiss();
 		}
+	}
+	
+	@Override
+	public void finish() {
+		ImageHelper.deleteCachedFiles();
+		super.finish();
 	}
 	
 	private void showProgressDialog() {
@@ -514,6 +523,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			}
 		}
 	}
+
 	
 	private void queryPhotoMetadata(Uri photoUri, String selection, String[] selectionArgs) {
 
@@ -531,23 +541,37 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 
 		Cursor cursor = getContentResolver().query(photoUri, columns, selection, selectionArgs, null);
 		if (cursor.moveToFirst()) {
-			String lat = cursor.getString(0);
-			String lon = cursor.getString(1);
-			String dateTaken = cursor.getString(2);
-			cameraFileUri = Uri.fromFile(new File(cursor.getString(3)));
-			if (StringUtils.hasLength(lat)) {
-				location = new Location("EXIF");
-				location.setLatitude(Double.parseDouble(lat));
-				location.setLongitude(Double.parseDouble(lon));
-				updateLocation();
-			}
-			try {
-				date = new Date(Long.parseLong(dateTaken));
-			}
-			catch (NumberFormatException e) {
-				Log.e("RecordSightingActivity", "Invalid date in photo metadata: "+date);
-			}
+			String filePath = cursor.getString(3);
 			
+			// This can happen in the case the Gallery app integrates 
+			// non-local sources, e.g. Picassa.
+			if (filePath == null) {
+				try {
+					Uri tmp = ImageHelper.downloadImage(photoUri, getCacheDir(), getContentResolver());
+					cameraFileUri = tmp;
+					readPhotoMetadata(tmp);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				cameraFileUri = Uri.fromFile(new File(filePath));
+				String lat = cursor.getString(0);
+				String lon = cursor.getString(1);
+				String dateTaken = cursor.getString(2);
+				if (StringUtils.hasLength(lat)) {
+					location = new Location("EXIF");
+					location.setLatitude(Double.parseDouble(lat));
+					location.setLongitude(Double.parseDouble(lon));
+					updateLocation();
+				}
+				try {
+					date = new Date(Long.parseLong(dateTaken));
+				}
+				catch (NumberFormatException e) {
+					Log.e("RecordSightingActivity", "Invalid date in photo metadata: "+date);
+				}
+			}
 			updatePhoto();
 		}
 		else {
@@ -574,8 +598,11 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			}
 			DateFormat exifFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 			try {
-				date = exifFormat.parse(exif.getAttribute(ExifInterface.TAG_DATETIME));
-				updateDateTime();
+				String dateString = exif.getAttribute(ExifInterface.TAG_DATETIME);
+				if (StringUtils.hasLength(dateString)) {
+					date = exifFormat.parse(dateString);
+					updateDateTime();
+				}
 			}
 			catch (ParseException e) {
 				Log.e("RecordSightingActivity", "Error reading date from EXIF for file: "+photoUri, e);
