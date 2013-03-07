@@ -29,7 +29,7 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 
 		if(speciesImages != null && !speciesImages.isEmpty()){
 			ImageDTO image = speciesImages.get(0); 
-			LoadImageTask lit = new LoadImageTask();
+			LoadImageTask lit = new LoadImageTask(true);
 			lit.setImageView(speciesImage);
 			lit.execute(image.getLargeImageUrl());
 			//add metadata

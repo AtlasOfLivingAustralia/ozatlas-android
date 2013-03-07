@@ -15,9 +15,26 @@ public class LoadImageTask extends AsyncTask<String, Integer, Bitmap> {
 
 	protected ImageView imageView;
 
+	private boolean scaleToWidth;
+	private int targetWidth;
+	
+	public LoadImageTask() {
+		scaleToWidth = false;
+	}
+	
+	public LoadImageTask(boolean scaleToWidth) {
+		this.scaleToWidth = scaleToWidth;
+	}
+	
 	@Override
 	protected Bitmap doInBackground(String... params) {
-		return loadBitmap(params[0]);
+		Bitmap bitmap = loadBitmap(params[0]);
+		if (bitmap != null && scaleToWidth) {
+			double scaleFactor = (double)targetWidth/(double)bitmap.getWidth();
+			
+			bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, (int)(bitmap.getHeight()*scaleFactor), true);
+		}
+		return bitmap;
 	}
 
 	@Override
@@ -44,9 +61,9 @@ public class LoadImageTask extends AsyncTask<String, Integer, Bitmap> {
 
 	        final byte[] data = dataStream.toByteArray();
 	        BitmapFactory.Options options = new BitmapFactory.Options();
-	        //options.inSampleSize = 1;
-
 	        bitmap = BitmapFactory.decodeByteArray(data, 0, data.length,options);
+	        
+	   
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    } finally {
@@ -63,5 +80,8 @@ public class LoadImageTask extends AsyncTask<String, Integer, Bitmap> {
 	
 	public void setImageView(ImageView imageView) {
 		this.imageView = imageView;
+		if (scaleToWidth) {
+			targetWidth = imageView.getWidth();
+		}
 	}
 }
