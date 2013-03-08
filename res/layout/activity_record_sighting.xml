@@ -72,18 +72,30 @@
         
         android:weightSum="1.0" >
 	    
-	    <ImageView
-	        android:id="@+id/photoView"
-	        android:layout_width="0dp"
+        <FrameLayout 
+            android:layout_width="0dp"
 	        android:layout_height="200dp"
 	        android:layout_weight="0.6"
-	        android:drawable="@drawable/no_photo"
-	        android:scaleType="centerCrop"
 	        android:layout_marginRight="3dp"
 	        android:layout_marginLeft="3dp"
-	        android:background="@android:color/background_light"
-	        android:src="@drawable/no_photo" />
-
+	        >
+	        <ImageView
+	            android:id="@+id/photoView"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:drawable="@drawable/no_photo"
+	            android:scaleType="centerCrop"
+	            android:background="@android:color/background_light"
+	            android:src="@drawable/no_photo"
+	            android:visibility="gone" />
+	        <ProgressBar 
+	            android:id="@+id/photoProgress"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:indeterminate="true"
+	            />
+	    
+		</FrameLayout>
 	    <LinearLayout
 	        android:id="@+id/photoButtons"
 	        android:orientation="vertical"

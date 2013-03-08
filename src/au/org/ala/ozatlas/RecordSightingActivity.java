@@ -1,34 +1,18 @@
 package au.org.ala.ozatlas;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
-
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
@@ -37,13 +21,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -58,14 +43,14 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar.LayoutParams;
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
  * Displays a form to collect details of a sighting of a species
  * to be submitted to the ALA.
  * Accepts a species lsid and scientific name as input.
  */
-public class RecordSightingActivity extends SherlockActivity implements RenderPage {
+public class RecordSightingActivity extends SherlockFragmentActivity implements RenderPage, LoaderCallbacks<Cursor> {
 
 	public static final String LSID_KEY = "lsid";
 	public static final String SCIENTIFIC_NAME_KEY = "scientificName";
@@ -75,6 +60,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	private static final String PHOTO_KEY = "photo";
 	private static final String LOCATION_KEY = "location";
 	private static final String DATE_KEY = "date";
+	private static final String PHOTO_LOAD_KEY = "loadInProgress";
 	
 	private static final String[] BUNDLE_KEYS = {LSID_KEY, SCIENTIFIC_NAME_KEY, COMMON_NAME_KEY, IMAGE_URL_KEY};
 	
@@ -90,13 +76,15 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	public static final int SELECT_LOCATION_REQUEST = 30;
 	
 	public static final int LOGIN_REQUEST = 40;
+	
+	public static final int UPLOAD_REQUEST = 50;
 
 	private String lsid;
 	private Uri cameraFileUri;
 	private Location location;
 	private Date date;
+	private boolean photoLoadInProgress;
 	
-	private SubmitSightingTask submitSightingTask;
 	private ProgressDialog progressDialog;
 	
 	@Override
@@ -118,34 +106,20 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 			if (dateInMillis > 0) {
 				date = new Date(dateInMillis);
 			}
+			photoLoadInProgress = savedInstanceState.getBoolean(PHOTO_LOAD_KEY, false);
+			if (photoLoadInProgress) {
+				getSupportLoaderManager().initLoader(0, null, this);
+			}
+			
 		}
 		
 		updateDateTime();
 		updateLocation();
-		
-		
-		submitSightingTask = (SubmitSightingTask)getLastNonConfigurationInstance();
-		if (submitSightingTask != null) {
-			submitSightingTask.attach(this);
-			showProgressDialog();
-		}
-		
+		updatePhoto();
 		addEventHandlers();
 	}
 	
-	@Override
-	public void onResume() {
-		super.onResume();
-		// We have to do this later (hence the post) as the ImageView won't 
-		// necessarily have been layed out yet so will have zero size.
-		ImageView photoView = (ImageView)findViewById(R.id.photoView);
-		photoView.post(new Runnable() {
-			public void run() {
-				updatePhoto();
-			}
-		});
-				
-	}
+	
 	@Override
 	protected void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
@@ -158,27 +132,91 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		if (date != null) {
 			out.putLong(DATE_KEY, date.getTime());
 		}
+		out.putBoolean(PHOTO_LOAD_KEY, photoLoadInProgress);
 	}
-	
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return submitSightingTask;
-	}
-	
+		
 	@Override
 	public void onPause() {
 		super.onPause();
 		if (progressDialog != null) {
 			progressDialog.dismiss();
+			progressDialog = null;
 		}
 	}
 	
 	@Override
 	public void finish() {
+		Log.i("RecordSightingActivity", "finish called");
 		ImageHelper.deleteCachedFiles();
 		super.finish();
 	}
 	
+	@Override
+	public Loader<Cursor> onCreateLoader(int arg0, Bundle args) {
+		Log.i("RecordSightingActivity", "onCreateLoader");
+		
+		return new PhotoLoader(this, (Uri)args.getParcelable(PHOTO_KEY));
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		Log.i("RecordSightingActivity", "onLoadFinished");
+		setPhotoLoadInProgress(false);
+		if (cursor.moveToFirst()) {
+	    	if (!cursor.isNull(0)) {
+	    		date = new Date(cursor.getLong(0));
+	    		updateDateTime();
+	    	}
+	    	if (!cursor.isNull(1)) {
+	    		location = new Location("EXIF");
+	    		location.setLatitude(cursor.getFloat(1));
+	    		location.setLongitude(cursor.getFloat(2));
+	    		updateLocation();
+	    	}
+	    	if (!cursor.isNull(3)) {
+	    		cameraFileUri = Uri.parse(cursor.getString(3));
+	    		updatePhoto();
+	    	}
+	    	else {
+	    		photoLoadError();
+	    	}
+	    	
+	    }
+	    else {
+	    	photoLoadError();
+	    }
+	}
+	
+	private void photoLoadError() {
+		showError(R.string.error_loading_photo_title, R.string.error_loading_photo_message);
+		cameraFileUri = null;
+		updatePhoto();
+	}
+	
+	private void setPhotoLoadInProgress(boolean loadInProgress) {
+		photoLoadInProgress = loadInProgress;
+	}
+	
+	private void setPhotoReady(boolean ready) {
+		if (photoLoadInProgress) {
+			return;
+		}
+		if (!ready) {
+			findViewById(R.id.photoView).setVisibility(View.GONE);
+			findViewById(R.id.photoProgress).setVisibility(View.VISIBLE);
+		}
+		else {
+			findViewById(R.id.photoView).setVisibility(View.VISIBLE);
+			findViewById(R.id.photoProgress).setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		Log.i("RecordSightingActivity", "onLoaderReset");
+		// don't really care - we'll keep the last lot we have for the moment.
+	}
+
 	private void showProgressDialog() {
 		progressDialog = ProgressDialog.show(this, "", "Recording your sighting...");
 	}
@@ -297,21 +335,34 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	private void validateAndSubmit() {
 		if (cameraFileUri != null) {
 			showProgressDialog();
-			new SubmitSightingTask(RecordSightingActivity.this).execute(getRecordData());
+			
+			Intent uploadIntent = new Intent(this, UploadSightingService.class);
+			uploadIntent.putExtra(UploadSightingService.STRING_PARAMS_KEY, getRecordData());
+			if (cameraFileUri != null) {
+				uploadIntent.putExtra(UploadSightingService.FILE_PARAM_KEY, cameraFileUri);
+		    }
+			PendingIntent callback = createPendingResult(UPLOAD_REQUEST, new Intent(), PendingIntent.FLAG_ONE_SHOT);
+			uploadIntent.putExtra(UploadSightingService.CALLBACK_KEY, callback);
+			
+			startService(uploadIntent);
 		}
 		else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-			builder.setTitle(R.string.attach_photo_title);
-			builder.setMessage(R.string.attach_photo_message);
-			builder.setNegativeButton(R.string.close, new Dialog.OnClickListener() {
-
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			});
-			builder.show();
+			showError(R.string.attach_photo_title, R.string.attach_photo_message);
 		}
+	}
+
+	private void showError(int title, int message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setTitle(title);
+		builder.setMessage(message);
+		builder.setNegativeButton(R.string.close, new Dialog.OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		builder.show();
 	}
 	
 	/**
@@ -321,6 +372,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	public void recordSubmitComplete(boolean success) {
 		if (progressDialog != null) {
 			progressDialog.dismiss();
+			progressDialog = null;
 		}
 		if (success) {
 			Toast.makeText(this, getResources().getString(R.string.record_sighting_success), Toast.LENGTH_LONG).show();
@@ -333,96 +385,54 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	}
 	
 	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
-	public MultiValueMap<String, Object> getRecordData() {
+	public HashMap<String, String> getRecordData() {
 	    Log.i("SubmitSightingTask", "Constructing data object for POST...");
-	    MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-	    params.add("surveyId", "1");
+	    HashMap<String, String> params = new HashMap<String, String>();
+	    params.put("surveyId", "1");
 	    if (lsid != null) {
-	    	params.add("taxonID", lsid);
+	    	params.put("taxonID", lsid);
 	    }
 	    TextView scientificName = (TextView)findViewById(R.id.scientificNameLabel);
-	    params.add("scientificName", scientificName.getText().toString());
-	    params.add("survey_species_search", scientificName.getText().toString());
+	    params.put("scientificName", scientificName.getText().toString());
+	    params.put("survey_species_search", scientificName.getText().toString());
 	    TextView commonName = (TextView)findViewById(R.id.commonNameLabel);
-	    params.add("commonName", commonName.getText().toString());
+	    params.put("commonName", commonName.getText().toString());
 	    
 	    if (location != null) {
-	    	params.add("latitude", Double.toString(location.getLatitude()));
-	    	params.add("longitude", Double.toString(location.getLongitude()));
+	    	params.put("latitude", Double.toString(location.getLatitude()));
+	    	params.put("longitude", Double.toString(location.getLongitude()));
 	    	if (location.hasAccuracy()) {
-	    		params.add("accuracyInMeters", Float.toString(location.getAccuracy()));
+	    		params.put("accuracyInMeters", Float.toString(location.getAccuracy()));
 	    	}
 	    }
-	    params.add("deviceName", android.os.Build.MODEL);
+	    params.put("deviceName", android.os.Build.MODEL);
 	    
 	    if (Build.VERSION.SDK_INT >= VERSION_CODES.GINGERBREAD) {
 	    	
-	    	params.add("deviceId", android.os.Build.SERIAL);
+	    	params.put("deviceId", android.os.Build.SERIAL);
 	    }
-	    params.add("devicePlatform", "android");
-	    params.add("deviceVersion", Build.VERSION.CODENAME + Build.VERSION.SDK_INT);
+	    params.put("devicePlatform", "android");
+	    params.put("deviceVersion", Build.VERSION.CODENAME + Build.VERSION.SDK_INT);
 
 	    CredentialsStorage storage = new CredentialsStorage(this);
-	    params.add("userName", storage.getUsername().toLowerCase());
-	    params.add("authenticationKey", storage.getAuthToken());
+	    params.put("userName", storage.getUsername().toLowerCase());
+	    params.put("authenticationKey", storage.getAuthToken());
 	    
 	    DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    if (date != null) {
-	    	params.add("date", isoFormat.format(date));		    
+	    	params.put("date", isoFormat.format(date));		    
 	    }
 	    Button time = (Button)findViewById(R.id.timeDisplay);
-	    params.add("time", time.getText().toString());
+	    params.put("time", time.getText().toString());
 	    EditText notes = (EditText)findViewById(R.id.notesField);
-	    params.add("notes", notes.getText().toString());
-	    if (cameraFileUri != null) {
-	    	params.add("attribute_file_1", new FileSystemResource(cameraFileUri.getPath()));
-	    }
+	    params.put("notes", notes.getText().toString());
+	    
 	    EditText number = (EditText)findViewById(R.id.howManyField);
-	    params.add("number", number.getText().toString());
+	    params.put("number", number.getText().toString());
 	    return params;
 	}
 	
-	public static class SubmitSightingTask extends AsyncTask<MultiValueMap<String, Object>, Void, Boolean> {
-
-		private RecordSightingActivity ctx;
-		
-		public SubmitSightingTask(RecordSightingActivity ctx) {
-			attach(ctx);
-		}
-		
-		@Override
-		protected Boolean doInBackground(MultiValueMap<String, Object>... params) {
-			boolean success = false;
-			String url = "https://m.ala.org.au/submit/recordMultiPart";
-			RestTemplate template = new RestTemplate(); 
-	        template.getMessageConverters().add(new FormHttpMessageConverter());
-	        template.getMessageConverters().add(new StringHttpMessageConverter());
-	        
-	        try {
-	        	String response = template.postForObject(url, params[0], String.class);
-	        	Log.d("RecordSightingActivity", response.toString());
-	        	ObjectMapper om = new ObjectMapper();
-				JsonNode node = om.readTree(response);
-				JsonNode successNode = node.get("success");
-	        	success = successNode.getBooleanValue();
-	        }
-	        catch (Exception e) {
-	        	Log.e("RecordSightingActivity", "Error recording sighting: ", e);
-	        }
-			return success;
-		}
-		
-		
 	
-		@Override
-		protected void onPostExecute(Boolean result) {
-			ctx.recordSubmitComplete(result);
-		}
-		
-		void attach(RecordSightingActivity ctx) {
-			this.ctx = ctx;
-		}
-	}
 	
 	private void checkForLogin() {
 		CredentialsStorage storage = new CredentialsStorage(this);
@@ -499,13 +509,13 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == TAKE_PHOTO_REQUEST) {
 			if (resultCode == RESULT_OK) {
-				readPhotoMetadata(cameraFileUri);		
+				loadPhotoMetadata(cameraFileUri);		
 			}
 		} else if (requestCode == SELECT_FROM_GALLERY_REQUEST) {
 			if (resultCode == RESULT_OK) {
 				Uri selected = data.getData();
 				if (selected != null) {
-					queryPhotoMetadata(selected, null, null);
+					loadPhotoMetadata(selected);
 				} else {
 					Log.e("CollectSurveyData", "Null data returned from gallery intent!" + data);
 				}
@@ -522,104 +532,31 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 				finish();
 			}
 		}
+		else if (requestCode == UPLOAD_REQUEST) {
+			recordSubmitComplete(resultCode == RESULT_OK);
+		}
 	}
 
-	
-	private void queryPhotoMetadata(Uri photoUri, String selection, String[] selectionArgs) {
-
-		if (selection != null) {
-		Log.d("", selection);
-		Log.d("", selectionArgs[0]);
-		}
-		String[] columns = {
-		        MediaStore.Images.ImageColumns.LATITUDE,
-		        MediaStore.Images.ImageColumns.LONGITUDE,
-		        MediaStore.Images.ImageColumns.DATE_TAKEN,
-		        MediaStore.Images.ImageColumns.DATA
-		    };
-
-
-		Cursor cursor = getContentResolver().query(photoUri, columns, selection, selectionArgs, null);
-		if (cursor.moveToFirst()) {
-			String filePath = cursor.getString(3);
-			
-			// This can happen in the case the Gallery app integrates 
-			// non-local sources, e.g. Picassa.
-			if (filePath == null) {
-				try {
-					Uri tmp = ImageHelper.downloadImage(photoUri, getCacheDir(), getContentResolver());
-					cameraFileUri = tmp;
-					readPhotoMetadata(tmp);
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				cameraFileUri = Uri.fromFile(new File(filePath));
-				String lat = cursor.getString(0);
-				String lon = cursor.getString(1);
-				String dateTaken = cursor.getString(2);
-				if (StringUtils.hasLength(lat)) {
-					location = new Location("EXIF");
-					location.setLatitude(Double.parseDouble(lat));
-					location.setLongitude(Double.parseDouble(lon));
-					updateLocation();
-				}
-				try {
-					date = new Date(Long.parseLong(dateTaken));
-				}
-				catch (NumberFormatException e) {
-					Log.e("RecordSightingActivity", "Invalid date in photo metadata: "+date);
-				}
-			}
-			updatePhoto();
-		}
-		else {
-			Log.d("", "no meatdata!");
-		}
-		cursor.close();
-	}
-
-	
-	@SuppressLint("SimpleDateFormat")
-	private void readPhotoMetadata(Uri photoUri) {
-		try {
-			ExifInterface exif = new ExifInterface(photoUri.getPath());
-			float[] latlong= new float[2];
-			boolean hasLatLong = exif.getLatLong(latlong);
-			if (hasLatLong) {
-				location = new Location("EXIF");
-				location.setLatitude(latlong[0]);
-				location.setLongitude(latlong[1]);
-				updateLocation();
-			}
-			else {
-				Log.i("", "No lat long in photo EXIF data");
-			}
-			DateFormat exifFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-			try {
-				String dateString = exif.getAttribute(ExifInterface.TAG_DATETIME);
-				if (StringUtils.hasLength(dateString)) {
-					date = exifFormat.parse(dateString);
-					updateDateTime();
-				}
-			}
-			catch (ParseException e) {
-				Log.e("RecordSightingActivity", "Error reading date from EXIF for file: "+photoUri, e);
-			}
-			updatePhoto();
-			
-		}
-		catch (IOException e) {
-			Log.e("RecordSightingActivity", "Error reading EXIF for file: "+photoUri, e);
-		}
+	private void loadPhotoMetadata(Uri photoUri) {
+		
+		findViewById(R.id.photoView).setVisibility(View.GONE);
+		findViewById(R.id.photoProgress).setVisibility(View.VISIBLE);
+		
+		Bundle args = new Bundle();
+		args.putParcelable(PHOTO_KEY, photoUri);
+		setPhotoLoadInProgress(true);
+		getSupportLoaderManager().restartLoader(0, args, this);
 	}
 	
 	private void updatePhoto() {
+		ImageView photo = (ImageView)findViewById(R.id.photoView);
 		
 		if (cameraFileUri != null) {
-			ImageView photo = (ImageView)findViewById(R.id.photoView);
 			new UpdatePhotoTask(cameraFileUri, photo.getWidth(), photo.getHeight()).execute();
+		}
+		else {
+			photo.setImageDrawable(getResources().getDrawable(R.drawable.no_photo));
+			setPhotoReady(true);
 		}
 	}
 	
@@ -679,6 +616,7 @@ public class RecordSightingActivity extends SherlockActivity implements RenderPa
 		protected void onPostExecute(Bitmap result) {
 			ImageView view = (ImageView)findViewById(R.id.photoView);
 			view.setImageBitmap(result);
+			setPhotoReady(true);
 		}
 		
 	}
