@@ -15,17 +15,15 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Species search 
  * 
  * @author davemartin
  */
-public class SpeciesSearchTask extends AsyncTaskLoader<List<Map<String,Object>>> {
+public class SpeciesSearchTask extends AsyncListLoader {
 
 	protected String searchText;
-	protected List<Map<String, Object>> results;
 	
 	public SpeciesSearchTask(Context context, String searchText) {
 		super(context);
@@ -70,14 +68,5 @@ public class SpeciesSearchTask extends AsyncTaskLoader<List<Map<String,Object>>>
 	}
 		
 	
-	 @Override
-	  protected void onStartLoading() {
-	    if (results!=null) {
-	      deliverResult(results);
-	    }
-	    
-	    if (takeContentChanged() || results==null) {
-	      forceLoad();
-	    }
-	  }
+	 
 }

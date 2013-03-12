@@ -15,42 +15,35 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.IntNode;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.util.Log;
 
 /**
  * Retrieve a list of species groups within a radius. 
  * 
  * @author davemartin
  */
-public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,Object>>> {
+public class GroupsSearchTask extends AsyncListLoader {
 
-	protected ListView listView;
-	protected Context context;
-	protected LoadGroup loadGroup;
 	
-	String lat;
-	String lon;
-	String radius;	
+	public String lat;
+	public String lon;
+	public String radius;	
 
-	public GroupsSearchTask(LoadGroup loadGroup){
-		this.loadGroup = loadGroup;
+	public GroupsSearchTask(Context context, String lat, String lon, String radius) {
+		super(context);
+		this.lat = lat;
+		this.lon = lon;
+		this.radius = radius;
 	}
 	
 	@Override
-	protected List<Map<String,Object>> doInBackground(String... args) {
+	public List<Map<String,Object>> loadInBackground() {
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		try{
 			
-			this.lat = args[0];
-			this.lon = args[1];
-			this.radius = args[2];			
-			
 			HttpClient http = HttpUtil.getTolerantClient();
 			final String searchUrl = "https://m.ala.org.au/searchByMultiRanks?lat="+lat+"&lon="+lon+"&radius="+radius; 
+			Log.i("GroupsSearchTask", "Loading from: "+searchUrl);
 			HttpGet get = new HttpGet(searchUrl);
 			HttpResponse response = http.execute(get);
 			InputStream input = response.getEntity().getContent();
@@ -85,32 +78,4 @@ public class GroupsSearchTask extends AsyncTask<String, String, List<Map<String,
 		}		
 		return results;
 	}
-	
-    @Override
-    // Once the image is downloaded, associates it to the imageView
-    protected void onPostExecute(List<Map<String,Object>> results) {
-    	String[] from = {"commonName", "scientificName", "count", "groupName"};
-    	int[] to = {R.id.commonName, R.id.scientificName, R.id.count, R.id.groupName};
-    	SpeciesListSectionAdapter adapter = new SpeciesListSectionAdapter(context, results, R.layout.group_results, from, to);
-        // Setting the adapter to the listView
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new OnItemClickListener(){
-		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
-		    	System.out.println("Position: " + position + ", arg3: " + arg3 + ", view : " + view);
-		    	@SuppressWarnings("unchecked")
-				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
-		    	String groupName = (String) li.get("commonName");
-		    	GroupsSearchTask.this.loadGroup.load(groupName, GroupsSearchTask.this.lat, 
-		    			GroupsSearchTask.this.lon, GroupsSearchTask.this.radius);
-		    }
-		});		        
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
-	public void setListView(ListView listView) {
-		this.listView = listView;
-	}	
 }

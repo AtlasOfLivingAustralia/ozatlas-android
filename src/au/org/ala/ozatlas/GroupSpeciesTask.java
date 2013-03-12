@@ -16,32 +16,33 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.IntNode;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
 
 /**
  * Retrieve a list of species within a radius and within a group. 
  * 
  * @author davemartin
  */
-public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,Object>>> {
+public class GroupSpeciesTask extends AsyncListLoader {
 
-	protected ListView listView;
-	protected Context context;
-
+	private String lat;
+	private String lon;
+	private String radius;
+	private String group;
+	
+	public GroupSpeciesTask(Context context, String group, String lat, String lon, String radius) {
+		super(context);
+		this.group = group;
+		this.lat = lat;
+		this.lon = lon;
+		this.radius = radius;
+	}
+	
 	@Override
-	protected List<Map<String,Object>> doInBackground(String... args) {
+	public List<Map<String,Object>> loadInBackground() {
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		try{
 			HttpClient http = HttpUtil.getTolerantClient();		
-			String groupParam = URLEncoder.encode("\""+ args[0] + "\"", "utf-8");
-			String lat = args[1];
-			String lon = args[2];
-			String radius = args[3];
+			String groupParam = URLEncoder.encode("\""+ group + "\"", "utf-8");
 			
 			//todo - move the root url to properties
 			final String searchUrl = "https://m.ala.org.au/exploreSubgroup?lat="+lat+"&lon="+lon+"&radius="+radius+"&subgroup=" + groupParam;
@@ -74,31 +75,5 @@ public class GroupSpeciesTask extends AsyncTask<String, String, List<Map<String,
 		}		
 		return results;
 	}
-	
-    @Override
-    // Once the image is downloaded, associates it to the imageView
-    protected void onPostExecute(List<Map<String,Object>> results) {
-    	String[] from = {"guid", "commonName", "scientificName",  "count"};
-    	int[] to = {R.id.guid, R.id.commonName, R.id.scientificName, R.id.count};
-    	SpeciesListAdapter adapter = new SpeciesListAdapter(context, results, R.layout.species_results, from, to);
-        // Setting the adapter to the listView
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new OnItemClickListener(){
-		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
-		    	Intent myIntent = new Intent(GroupSpeciesTask.this.context, SpeciesPageActivity.class);
-				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
-		    	String guid = (String) li.get("guid");		    	
-		    	myIntent.putExtra("guid", guid);
-		    	GroupSpeciesTask.this.context.startActivity(myIntent);
-		    }
-		});		        
-    }
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
-	public void setListView(ListView listView) {
-		this.listView = listView;
-	}	
 }
