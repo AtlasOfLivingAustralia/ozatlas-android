@@ -24,7 +24,7 @@
         android:required="true" />
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
     <application
@@ -36,7 +36,7 @@
             android:name="au.org.ala.ozatlas.HomeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme" >
+             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,7 +46,7 @@
             android:name="au.org.ala.ozatlas.ExploreYourAreaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_explore_your_area"
-            android:theme="@style/FullscreenTheme" >
+             >
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.SpeciesSearchActivity"
@@ -67,18 +67,15 @@
         <activity
             android:name="au.org.ala.ozatlas.RecordSightingActivity"
             android:label="@string/title_record_sighting"
-            android:theme="@style/Theme.Sherlock.Light"
             android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.RecordLocationActivity"
-            android:label="@string/title_record_location"
-            android:theme="@style/Theme.Sherlock">
+            android:label="@string/title_record_location">
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.LoginActivity"
             android:label="@string/title_login_activity"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
             android:screenOrientation="portrait">
         </activity>
         <meta-data
@@ -89,8 +86,14 @@
             android:name="au.org.ala.ozatlas.LatestImagesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_latest_images"
-            android:theme="@style/FullscreenTheme" >
+            >
         </activity>
+        
+        <service 
+            android:name=".UploadSightingService"
+            android:label="UploadSightingService" >
+            
+        </service>
     </application>
 
 </manifest>
