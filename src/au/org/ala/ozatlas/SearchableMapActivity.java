@@ -34,10 +34,13 @@ public abstract class SearchableMapActivity extends SherlockFragmentActivity imp
             if (mf != null) {
             	this.map = mf.getMap();
             	this.map.setMyLocationEnabled(true);
-            	
-            	this.map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(-23.7, 133.87)));
+       	
             }
         }
+		// Start off showing australia
+		if (this.map != null) {
+			this.map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(-23.7, 133.87)));
+		}
 	}
 	
 	@Override

@@ -26,10 +26,8 @@
        android:textSize="35dp"
        android:background="#07000000"
        android:textColor="#000000"
-       android:text="RADIUS"
        android:layout_alignParentLeft="true"
 	   android:layout_alignParentTop="true"
-	   android:layout_marginTop="@dimen/abs__action_bar_default_height"
 	   android:layout_marginLeft="10dp"
     />    
     

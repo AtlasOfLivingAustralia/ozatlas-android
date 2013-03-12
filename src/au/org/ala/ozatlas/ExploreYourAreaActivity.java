@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.location.GpsStatus.Listener;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -168,24 +167,15 @@ public class ExploreYourAreaActivity extends SearchableMapActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-        if(this.map.getMyLocation() != null){
-        	Location location = this.map.getMyLocation();
-        	this.map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude())));
-        }
-        
         String context = Context.LOCATION_SERVICE;
         LocationManager locationManager = (LocationManager) getSystemService(context);
-        locationManager.addGpsStatusListener(new Listener(){
-			@Override
-			public void onGpsStatusChanged(int status) {
-				if(status == 3 && ExploreYourAreaActivity.this.map.getMyLocation() !=null && !ExploreYourAreaActivity.this.firstFixFired){  //first fix event
-		        	Location location = ExploreYourAreaActivity.this.map.getMyLocation();
-		        	LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-		        	ExploreYourAreaActivity.this.firstFixFired = true;
-		        	ExploreYourAreaActivity.this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 11, 0f, 0f)));
-				}
-			}
-        });
+        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (location != null) {
+        	this.map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude())));
+        	LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+        	ExploreYourAreaActivity.this.firstFixFired = true;
+        	ExploreYourAreaActivity.this.map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, 11, 0f, 0f)));
+        }
 	}
 
 	@TargetApi(8)
