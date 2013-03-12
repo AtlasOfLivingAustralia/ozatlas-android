@@ -36,7 +36,7 @@ public class HomeActivity extends SherlockActivity {
 	        public void onClick(View view) {                 
 	            System.out.println("Starting Species search activity.....");
 	        	Intent myIntent = new Intent(HomeActivity.this, SpeciesSearchActivity.class);
-	        	myIntent.putExtra("followupActivity", SpeciesSearchActivity.SPECIES_PAGE);
+	        	myIntent.putExtra("followupActivity", SpeciesSearchFragment.SPECIES_PAGE);
 	        	HomeActivity.this.startActivity(myIntent);
 	        }
 	    });	
@@ -46,7 +46,7 @@ public class HomeActivity extends SherlockActivity {
 	        public void onClick(View view) {                 
 	            System.out.println("Starting Species record sighting activity.....");
 	        	Intent myIntent = new Intent(HomeActivity.this, SpeciesSearchActivity.class);
-	        	myIntent.putExtra("followupActivity", SpeciesSearchActivity.RECORD_SIGHTING);
+	        	myIntent.putExtra("followupActivity", SpeciesSearchFragment.RECORD_SIGHTING);
 	        	HomeActivity.this.startActivity(myIntent);
 	        }
 	    });			

@@ -42,5 +42,6 @@
 	<string name="record_sighting_failed">There was an error recording your sighting.\n Please try again later.</string>
 	<string name="error_loading_photo_title">Error loading photo</string>
 	<string name="error_loading_photo_message">There was an error when attempting to load your photo.  Please select another photo.</string>
-	
+	<string name="no_search_results_message">No results found for %s.</string>
+	<string name="no_search_results_no_query_message">No results found.</string>
 </resources>

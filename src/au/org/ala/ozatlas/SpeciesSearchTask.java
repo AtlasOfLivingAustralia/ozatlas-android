@@ -14,32 +14,31 @@ import org.apache.http.client.methods.HttpGet;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Species search 
  * 
  * @author davemartin
  */
-public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String,Object>>> {
+public class SpeciesSearchTask extends AsyncTaskLoader<List<Map<String,Object>>> {
 
-	protected Context context;	
-	protected ListView listView;
-	protected Class<Activity> followupActivity;
+	protected String searchText;
+	protected List<Map<String, Object>> results;
+	
+	public SpeciesSearchTask(Context context, String searchText) {
+		super(context);
+		this.searchText = searchText;
+	}
+	
 	
 	@Override
-	protected List<Map<String,Object>> doInBackground(String... args) {
-		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
+	public List<Map<String,Object>> loadInBackground() {
+		results = new ArrayList<Map<String,Object>>();
 		try{
 			HttpClient http = HttpUtil.getTolerantClient();
-			final String searchUrl = "http://bie.ala.org.au/ws/search.json?pageSize=30&fq=idxtype:TAXON&q="  + URLEncoder.encode(args[0], "utf-8");
+			final String searchUrl = "http://bie.ala.org.au/ws/search.json?pageSize=30&fq=idxtype:TAXON&q="  + URLEncoder.encode(searchText, "utf-8");
 			System.out.println("SEARCH URL : " + searchUrl);
 			
 			HttpGet get = new HttpGet(searchUrl);
@@ -69,37 +68,16 @@ public class SpeciesSearchTask extends AsyncTask<String, String, List<Map<String
 		}		
 		return results;
 	}
+		
 	
-    @Override
-    // Once the image is downloaded, associates it to the imageView
-    protected void onPostExecute(List<Map<String,Object>> results) {
-    	String[] from = {"scientificName", "commonName", "rankID"};
-    	int[] to = {R.id.scientificName, R.id.commonName};
-    	SpeciesListAdapter adapter = new SpeciesListAdapter(context, results, R.layout.listview_thumbnails, from, to);
-        // Setting the adapter to the listView
-        listView.setAdapter(adapter);	
-        listView.setOnItemClickListener(new OnItemClickListener(){
-		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
-		    	Intent myIntent = new Intent(SpeciesSearchTask.this.context, SpeciesSearchTask.this.followupActivity);
-				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
-		    	myIntent.putExtra("guid", (String) li.get("guid"));
-		    	myIntent.putExtra("scientificName", (String) li.get("scientificName"));
-		    	myIntent.putExtra("commonName", (String) li.get("commonName"));
-		    	myIntent.putExtra("speciesImageUrl", (String) li.get("smallImageUrl"));
-		    	SpeciesSearchTask.this.context.startActivity(myIntent);
-		    }
-		});	        
-    }
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
-	public void setListView(ListView listView) {
-		this.listView = listView;
-	}
-
-	public void setFollowupActivity(Class<Activity> followupActivity) {
-		this.followupActivity = followupActivity;
-	}
+	 @Override
+	  protected void onStartLoading() {
+	    if (results!=null) {
+	      deliverResult(results);
+	    }
+	    
+	    if (takeContentChanged() || results==null) {
+	      forceLoad();
+	    }
+	  }
 }
