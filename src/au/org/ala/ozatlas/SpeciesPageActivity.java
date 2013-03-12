@@ -6,6 +6,10 @@ import java.util.Map;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,6 +27,8 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 
 	@Override
 	public void render(Map<String, Object> data) {
+		
+		findViewById(R.id.progress).setVisibility(View.GONE);
 		
 		ImageView speciesImage = (ImageView) findViewById(R.id.speciesImage);
 		List<ImageDTO> speciesImages = (List<ImageDTO>) data.get("speciesImages");
@@ -55,21 +61,31 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 		lit2.setImageView(speciesMap);
 		lit2.execute(speciesMapUrl);		
 		
-		TextView scientificName = (TextView) findViewById(R.id.scientificName);
-		scientificName.setText((String) data.get("scientificName"));
+		TextView scientificNameView = (TextView) findViewById(R.id.scientificNameAndAuthorship);
+		String scientificName = (String) data.get("scientificName"); 
 		
 		boolean italicise = false;
 		
 		if(data.get("rankID") != null){
 			Integer rankID = (Integer) data.get("rankID");
 			if(rankID>6000){
-				scientificName.setTypeface(null, Typeface.ITALIC);
 				italicise = true;
 			}
 		}
+		String authorship = (String) data.get("authorship");
 		
-		TextView authorship = (TextView) findViewById(R.id.authorship);
-		authorship.setText((String) data.get("authorship"));		
+		SpannableStringBuilder builder = new SpannableStringBuilder(scientificName);
+		builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Large), 0, scientificName.length(), 0);
+		if (italicise) {
+			builder.setSpan(new StyleSpan(Typeface.ITALIC), 0, scientificName.length(), 0);
+		}
+		if (authorship != null) {
+			builder.append("   "+authorship);
+			builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Small), scientificName.length(), builder.length(), 0);
+		}
+		
+		scientificNameView.setText(builder);
+		
 		
 		TextView commonName = (TextView) findViewById(R.id.commonName);
 		if(data.get("commonName") != null){
