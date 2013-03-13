@@ -85,6 +85,6 @@
     <style name="ActionBarButton" parent="@style/Widget.Sherlock.ActionButton">
     	<item name="android:textAppearance">@style/TextAppearance.Sherlock.Widget.ActionBar.Menu</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@android:color/black</item>
+        <item name="android:background">#FF222222</item>
     </style>
 </resources>

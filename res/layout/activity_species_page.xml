@@ -1,10 +1,16 @@
-   <ScrollView android:id="@+id/scrollView"
-       	android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/species_page_background"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-    	xmlns:tools="http://schemas.android.com/tools">
-
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+      <ScrollView 
+       android:id="@+id/scrollView"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:background="@color/species_page_background"
+       android:fillViewport="true"
+       android:paddingBottom="@dimen/abs__action_bar_default_height" >
             
 	    <LinearLayout         
 	        android:id="@+id/pageLayout"
@@ -12,13 +18,9 @@
 	        android:layout_height="wrap_content"
 	        android:layout_margin="5dp"
 	        android:orientation="vertical" 
-	        android:background="@color/species_page_background">    
+	        >    
     	
-	        <ProgressBar 
-               android:id="@+id/progress"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-            /> 
+	        
 		    <LinearLayout         
 		        android:id="@+id/scientificNameLayout"
 		        android:layout_width="fill_parent"
@@ -176,4 +178,26 @@
 		        
 		    </LinearLayout>			    
 		</LinearLayout>
-</ScrollView>		
+		
+    
+    </ScrollView>	
+	<ProgressBar 
+               android:id="@+id/progress"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_alignParentLeft="true"
+               android:layout_centerVertical="true"
+            /> 
+	<Button 
+	    android:id="@+id/recordSightingButton"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentBottom="true"
+	    style="@style/ActionBarButton"
+	    android:text="Record Sighting"
+	    android:visibility="gone">
+	    
+	</Button>
+	    
+</RelativeLayout>	

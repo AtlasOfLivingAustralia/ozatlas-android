@@ -10,7 +10,9 @@ import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.text.style.TextAppearanceSpan;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +30,8 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 	public void render(Map<String, Object> data) {
 		
 		findViewById(R.id.progress).setVisibility(View.GONE);
-		
+		findViewById(R.id.recordSightingButton).setVisibility(View.VISIBLE);
+		addRecordSightingListener(data);
 		ImageView speciesImage = (ImageView) findViewById(R.id.speciesImage);
 		List<ImageDTO> speciesImages = (List<ImageDTO>) data.get("speciesImages");
 
@@ -253,6 +256,30 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 		setTitle((String) data.get("scientificName"));
 	}
 
+	private void addRecordSightingListener(final Map<String, Object> data) {
+		Button recordSighting = (Button)findViewById(R.id.recordSightingButton);
+		recordSighting.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent recordSightingIntent = new Intent(SpeciesPageActivity.this, RecordSightingActivity.class);
+				recordSightingIntent.putExtra(RecordSightingActivity.LSID_KEY, (String)data.get("guid"));
+				recordSightingIntent.putExtra(RecordSightingActivity.SCIENTIFIC_NAME_KEY, (String)data.get("scientificName"));
+				recordSightingIntent.putExtra(RecordSightingActivity.COMMON_NAME_KEY, (String)data.get("commonName"));
+				
+				@SuppressWarnings("unchecked")
+				List<ImageDTO> speciesImages = (List<ImageDTO>) data.get("speciesImages");
+
+				if(speciesImages != null && !speciesImages.isEmpty()){
+					ImageDTO image = speciesImages.get(0); 
+					recordSightingIntent.putExtra(RecordSightingActivity.IMAGE_URL_KEY, (String)image.smallImageUrl);
+				}
+				startActivity(recordSightingIntent);
+			}
+		});
+		
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -266,5 +293,4 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 			spt.execute("urn:lsid:biodiversity.org.au:afd.taxon:8d061243-c39f-4b81-92a9-c81f4419e93c");
 		}
 	}
-
 }
