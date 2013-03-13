@@ -4,16 +4,19 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -21,8 +24,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 
 public class SpeciesSearchFragment extends SherlockListFragment implements LoaderCallbacks<List<Map<String, Object>>>  {
 
@@ -32,7 +33,7 @@ public class SpeciesSearchFragment extends SherlockListFragment implements Loade
 	private static final String SEARCH_TEXT_KEY = "searchText";
 	private static final String SEARCH_PERFORMED_KEY = "searchPerformed";
 	
-	protected Class followupActivityClass = SpeciesPageActivity.class; 
+	protected Class<? extends Activity> followupActivityClass = SpeciesPageActivity.class; 
 	/** 
 	 * Records whether a search has been performed or not so we can
 	 * restore the results on config change.
@@ -53,26 +54,9 @@ public class SpeciesSearchFragment extends SherlockListFragment implements Loade
 	}
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		setHasOptionsMenu(true);
-	}
-	
-	
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_species_search, container);
-		
-		if (savedInstanceState != null) {
-			searchPerformed = savedInstanceState.getBoolean(SEARCH_PERFORMED_KEY);
-			if (searchPerformed) {
-				// Don't need to pass an argument as we want the existing 
-				// instance in this case.
-				getLoaderManager().initLoader(0, null, this);
-			}
-		}
 		
 		final EditText searchText = (EditText) view.findViewById(R.id.speciesSearchInput);
 		searchText.setOnKeyListener(new OnKeyListener(){
@@ -95,12 +79,30 @@ public class SpeciesSearchFragment extends SherlockListFragment implements Loade
 		goButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+					      Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 				search(v);	
 			}
 		});
 		return view;
 	}
 	
+	@Override
+	public void onViewStateRestored(Bundle savedInstanceState) {
+		super.onViewStateRestored(savedInstanceState);
+		if (savedInstanceState != null) {
+			searchPerformed = savedInstanceState.getBoolean(SEARCH_PERFORMED_KEY);
+			if (searchPerformed) {
+				Log.i("SpeciesSearchFragment", "Restoring search after destroyed activity");
+				Bundle params = new Bundle();
+				params.putString(SEARCH_TEXT_KEY, getSearchText());
+				getLoaderManager().initLoader(0, params, this);
+			}
+		}
+		
+	}
+
 	private String getSearchText() {
 		EditText editText = (EditText) getView().findViewById(R.id.speciesSearchInput);
 		return editText.getText().toString();
@@ -117,11 +119,6 @@ public class SpeciesSearchFragment extends SherlockListFragment implements Loade
 		params.putString(SEARCH_TEXT_KEY, text);
 		getLoaderManager().restartLoader(0, params, this);
 	}	
-	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.species_search, menu);
-	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle out) {
@@ -149,6 +146,7 @@ public class SpeciesSearchFragment extends SherlockListFragment implements Loade
         getListView().setOnItemClickListener(new OnItemClickListener(){
 		    @Override public void onItemClick(AdapterView<?> listView, View view, int position, long arg3){ 
 		    	Intent myIntent = new Intent(getActivity(), followupActivityClass);
+				@SuppressWarnings("unchecked")
 				Map<String,Object> li =  (Map<String,Object>) listView.getItemAtPosition(position);
 		    	myIntent.putExtra("guid", (String) li.get("guid"));
 		    	myIntent.putExtra("scientificName", (String) li.get("scientificName"));

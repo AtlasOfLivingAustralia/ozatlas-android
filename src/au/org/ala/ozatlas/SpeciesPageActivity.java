@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
 
 /**
  * Load a species page
@@ -74,18 +73,19 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 		}
 		String authorship = (String) data.get("authorship");
 		
-		SpannableStringBuilder builder = new SpannableStringBuilder(scientificName);
-		builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Large), 0, scientificName.length(), 0);
-		if (italicise) {
-			builder.setSpan(new StyleSpan(Typeface.ITALIC), 0, scientificName.length(), 0);
+		if (scientificName != null) {
+			SpannableStringBuilder builder = new SpannableStringBuilder(scientificName);
+			builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Large), 0, scientificName.length(), 0);
+			if (italicise) {
+				builder.setSpan(new StyleSpan(Typeface.ITALIC), 0, scientificName.length(), 0);
+			}
+			if (authorship != null) {
+				builder.append("   "+authorship);
+				builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Small), scientificName.length(), builder.length(), 0);
+			}
+			
+			scientificNameView.setText(builder);
 		}
-		if (authorship != null) {
-			builder.append("   "+authorship);
-			builder.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Small), scientificName.length(), builder.length(), 0);
-		}
-		
-		scientificNameView.setText(builder);
-		
 		
 		TextView commonName = (TextView) findViewById(R.id.commonName);
 		if(data.get("commonName") != null){
@@ -267,10 +267,4 @@ public class SpeciesPageActivity extends SherlockActivity implements RenderPage{
 		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.species_page, menu);
-		return true;
-	}
 }

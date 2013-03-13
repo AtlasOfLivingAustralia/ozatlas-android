@@ -83,7 +83,11 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 	private Uri cameraFileUri;
 	private Location location;
 	private Date date;
-	private boolean photoLoadInProgress;
+	/** 
+	 * Used to save the parameters passed to the photo loading task so it
+	 * can be restored correctly.
+	 */
+	private Bundle photoLoadParams;
 	
 	private ProgressDialog progressDialog;
 	
@@ -106,9 +110,9 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 			if (dateInMillis > 0) {
 				date = new Date(dateInMillis);
 			}
-			photoLoadInProgress = savedInstanceState.getBoolean(PHOTO_LOAD_KEY, false);
-			if (photoLoadInProgress) {
-				getSupportLoaderManager().initLoader(0, null, this);
+			photoLoadParams = (Bundle)savedInstanceState.getParcelable(PHOTO_LOAD_KEY);
+			if (photoLoadParams != null) {
+				getSupportLoaderManager().initLoader(0, photoLoadParams, this);
 			}
 			
 		}
@@ -132,7 +136,7 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 		if (date != null) {
 			out.putLong(DATE_KEY, date.getTime());
 		}
-		out.putBoolean(PHOTO_LOAD_KEY, photoLoadInProgress);
+		out.putParcelable(PHOTO_LOAD_KEY, photoLoadParams);
 	}
 		
 	@Override
@@ -161,7 +165,7 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		Log.i("RecordSightingActivity", "onLoadFinished");
-		setPhotoLoadInProgress(false);
+		photoLoadFinished();
 		if (cursor.moveToFirst()) {
 	    	if (!cursor.isNull(0)) {
 	    		date = new Date(cursor.getLong(0));
@@ -193,12 +197,20 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 		updatePhoto();
 	}
 	
-	private void setPhotoLoadInProgress(boolean loadInProgress) {
-		photoLoadInProgress = loadInProgress;
+	private void photoLoadFinished() {
+		photoLoadParams = null;
+	}
+	
+	private void photoLoadInProgress(Bundle params) {
+		photoLoadParams = params;
+	}
+	
+	private boolean isPhotoLoadInProgress() {
+		return photoLoadParams != null;
 	}
 	
 	private void setPhotoReady(boolean ready) {
-		if (photoLoadInProgress) {
+		if (isPhotoLoadInProgress()) {
 			return;
 		}
 		if (!ready) {
@@ -542,10 +554,10 @@ public class RecordSightingActivity extends SherlockFragmentActivity implements 
 		findViewById(R.id.photoView).setVisibility(View.GONE);
 		findViewById(R.id.photoProgress).setVisibility(View.VISIBLE);
 		
-		Bundle args = new Bundle();
-		args.putParcelable(PHOTO_KEY, photoUri);
-		setPhotoLoadInProgress(true);
-		getSupportLoaderManager().restartLoader(0, args, this);
+		Bundle params = new Bundle();
+		params.putParcelable(PHOTO_KEY, photoUri);
+		photoLoadInProgress(params);
+		getSupportLoaderManager().restartLoader(0, params, this);
 	}
 	
 	private void updatePhoto() {

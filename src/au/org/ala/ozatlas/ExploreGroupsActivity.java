@@ -12,8 +12,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.actionbarsherlock.view.Menu;
-
 public class ExploreGroupsActivity extends GroupActivity implements LoadGroup {
 
 	@Override
@@ -47,13 +45,6 @@ public class ExploreGroupsActivity extends GroupActivity implements LoadGroup {
 		getSupportLoaderManager().initLoader(0, params, this);
 		
 		setTitle("Area - radius: " + radius + "km, " + lat + ", "+ lon);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.explore_groups, menu);
-		return true;
 	}
 
 	@Override

@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.actionbarsherlock.view.Menu;
 
 public class ExploreGroupActivity extends GroupActivity {
 
@@ -51,13 +49,6 @@ public class ExploreGroupActivity extends GroupActivity {
 			setTitle(groupName +" in the area of : " + placeName);
 		else
 			setTitle(groupName +" in the area of : " + lat + ", " + lon);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.explore_group, menu);
-		return true;
 	}
 	
 	@Override

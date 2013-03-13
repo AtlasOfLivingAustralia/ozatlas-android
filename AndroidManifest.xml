@@ -75,8 +75,7 @@
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.LoginActivity"
-            android:label="@string/title_login_activity"
-            android:screenOrientation="portrait">
+            android:label="@string/title_login_activity">
         </activity>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"

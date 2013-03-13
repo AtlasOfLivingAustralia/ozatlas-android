@@ -1,6 +1,11 @@
 package au.org.ala.ozatlas;
 
+import java.io.IOException;
+
+import javax.net.ssl.SSLException;
+
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -155,22 +160,15 @@ public class LoginActivity extends SherlockActivity implements OnClickListener {
 		public Boolean doInBackground(Void... args) {
 			boolean success = false;
 			try {
+				try{
+					success = login();
+				} catch(SSLException e) {
+					// We seem to be getting random connection resets from the 
+					// server when using SSL.  Trying again will normally work.
+					Log.d("LoginActivity", "Got SSL error, retrying");
+					success = login();
+				}
 				
-				RestTemplate template = new RestTemplate(); 
-		        template.getMessageConverters().add(new FormHttpMessageConverter());
-		        template.getMessageConverters().add(new StringHttpMessageConverter());
-		        MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-		        params.add("userName", username);
-		        params.add("password", password);
-		        String response = template.postForObject(HttpUtil.getLoginUrl(), params, String.class);
-		        Log.d("LoginActivity", response.toString());
-		        ObjectMapper om = new ObjectMapper();
-				JsonNode node = om.readTree(response);
-				JsonNode keyNode = node.get("authKey");
-		        if (keyNode != null) {
-		        	saveCredentials(username, keyNode.getValueAsText());
-		        	success = true;
-		        }
 		        
 			} catch (Exception e) {
 				this.e = e;
@@ -178,6 +176,28 @@ public class LoginActivity extends SherlockActivity implements OnClickListener {
 			}
 			return success;
 		}
+
+		private boolean login() throws IOException, JsonProcessingException {
+			boolean success = false;
+			RestTemplate template = new RestTemplate(); 
+			template.getMessageConverters().add(new FormHttpMessageConverter());
+			template.getMessageConverters().add(new StringHttpMessageConverter());
+			MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
+			params.add("userName", username);
+			params.add("password", password);
+			String response = template.postForObject(HttpUtil.getLoginUrl(), params, String.class);
+			Log.d("LoginActivity", response.toString());
+			ObjectMapper om = new ObjectMapper();
+			JsonNode node = om.readTree(response);
+			JsonNode keyNode = node.get("authKey");
+			if (keyNode != null) {
+				saveCredentials(username, keyNode.getValueAsText());
+				success = true;
+			}
+			return success;
+		}
+		
+		
 
 		private void saveCredentials(String username, String authToken) {
 			CredentialsStorage storage = new CredentialsStorage(ctx);

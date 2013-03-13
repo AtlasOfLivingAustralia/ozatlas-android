@@ -7,7 +7,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class HttpUtil {
 
 	
-	private static final String SERVER_URL = "https://m.ala.org.au";
+	public static final String SERVER_URL = "https://m.ala.org.au";
 	
 	public static DefaultHttpClient getTolerantClient() {
 	    DefaultHttpClient client = new DefaultHttpClient();

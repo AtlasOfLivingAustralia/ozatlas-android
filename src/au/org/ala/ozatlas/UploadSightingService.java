@@ -1,8 +1,12 @@
 package au.org.ala.ozatlas;
 
+import java.io.IOException;
 import java.util.Map;
 
+import javax.net.ssl.SSLException;
+
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -36,6 +40,7 @@ public class UploadSightingService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 
+		@SuppressWarnings("unchecked")
 		Map<String, Object> params = (Map<String, Object>)intent.getSerializableExtra(STRING_PARAMS_KEY);
 		LinkedMultiValueMap<String, Object> postData = new LinkedMultiValueMap<String, Object>();
 		postData.setAll(params);
@@ -62,22 +67,37 @@ public class UploadSightingService extends IntentService {
 	
 	private int uploadSighting(MultiValueMap<String, Object> params) {
 		boolean success = false;
-		RestTemplate template = new RestTemplate(); 
-        template.getMessageConverters().add(new FormHttpMessageConverter());
-        template.getMessageConverters().add(new StringHttpMessageConverter());
-        
+		
         try {
-        	String response = template.postForObject(UPLOAD_URL, params, String.class);
-        	Log.d("RecordSightingActivity", response.toString());
-        	ObjectMapper om = new ObjectMapper();
-			JsonNode node = om.readTree(response);
-			JsonNode successNode = node.get("success");
-        	success = successNode.getBooleanValue();
+        	try {
+        		success = doUpload(params);
+        	}
+        	catch (SSLException e) {
+        		// This is to handle the occasional connection reset we
+        		// are getting.
+        		Log.d("LoginActivity", "Got SSL error, retrying");
+				success = doUpload(params);
+        	}
         }
         catch (Exception e) {
         	Log.e("RecordSightingActivity", "Error recording sighting: ", e);
         }
 		return success ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+	}
+
+	private boolean doUpload(MultiValueMap<String, Object> params) throws IOException,
+			JsonProcessingException {
+		boolean success;
+		RestTemplate template = new RestTemplate(); 
+		template.getMessageConverters().add(new FormHttpMessageConverter());
+		template.getMessageConverters().add(new StringHttpMessageConverter());
+		String response = template.postForObject(UPLOAD_URL, params, String.class);
+		Log.d("RecordSightingActivity", response.toString());
+		ObjectMapper om = new ObjectMapper();
+		JsonNode node = om.readTree(response);
+		JsonNode successNode = node.get("success");
+		success = successNode.getBooleanValue();
+		return success;
 	}
 		
 
