@@ -31,6 +31,13 @@
             android:layout_height="wrap_content"
             android:text="Explore Your Area"
             style="@style/ButtonBarButton" />
+        
+        <Button
+            android:id="@+id/aboutTheAtlas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="About the Atlas"
+            style="@style/ButtonBarButton" />
 
     </LinearLayout>
     

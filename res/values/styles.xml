@@ -46,6 +46,10 @@
        <item name="android:background">@color/species_page_background</item>
        
    </style>
+   
+   <style name="about_page_style" parent="AppTheme">
+       <item name="android:textColor">@android:color/white</item>
+   </style>
 
     
   <style name="DateSpinner" parent="@style/Sherlock.__Widget.Holo.Spinner">

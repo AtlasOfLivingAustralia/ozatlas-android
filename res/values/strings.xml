@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">OzAtlas</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="dummy_button">Dummy Button</string>
@@ -30,18 +31,26 @@
     <string name="login">Login</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
-    
     <string name="login_progress_message">Logging in...</string>
     <string name="login_failed_message">Invalid user name or password</string>
     <string name="login_failed_title">Login failed</string>
     <string name="title_login_activity">Login</string>
     <string name="login_instructions">To record a sighting, please login using the user name and password you used to register with the Atlas of Living Australia</string>
-	<string name="attach_photo_title">Photo required</string>
-	<string name="attach_photo_message">Please attach a photo before submitting your sighting</string>
-	<string name="record_sighting_success">Thankyou.  Your sighting has been recorded.</string>
-	<string name="record_sighting_failed">There was an error recording your sighting.\n Please try again later.</string>
-	<string name="error_loading_photo_title">Error loading photo</string>
-	<string name="error_loading_photo_message">There was an error when attempting to load your photo.  Please select another photo.</string>
-	<string name="no_search_results_message">No results found for %s.</string>
-	<string name="no_search_results_no_query_message">No results found.</string>
+    <string name="attach_photo_title">Photo required</string>
+    <string name="attach_photo_message">Please attach a photo before submitting your sighting</string>
+    <string name="record_sighting_success">Thankyou.  Your sighting has been recorded.</string>
+    <string name="record_sighting_failed">There was an error recording your sighting.\n Please try again later.</string>
+    <string name="error_loading_photo_title">Error loading photo</string>
+    <string name="error_loading_photo_message">There was an error when attempting to load your photo.  Please select another photo.</string>
+    <string name="no_search_results_message">No results found for %s.</string>
+    <string name="no_search_results_no_query_message">No results found.</string>
+    
+    <string name="title_activity_about_the_atlas">About the Atlas</string>
+    <string name="about_ala_header"><data><![CDATA[<b>Sharing biodiversity knowledge</b> contributed by Australia\'s academic, scientific, environmental communities and <b>you</b>.]]></data></string>
+    <string name="about_ala_paragraph_1">The Atlas of Living Australia project is a national collaboration between the Australian museums, herbaria and biological collections, and the Commonwealth Government, to create a national database of Australia\'s flora and fauna, all freely available online at www.ala.org.au The Atlas is helping to build a more detailed picture of Australia\'s biodiversity and provide more adequate biodiversity data for researchers, environmental managers and policy makers. In its first five years, the Atlas has built a rich database of information on Australian plants, animals and fungi, with over 30 million occurrence records from biodiversity surveys and 170,000 species pages, plus photo galleries, distribution maps and mapping tools, national species lists, heritage literature, and more - a one-stop shop for information about Australia\'s biodiversity.</string>
+    <string name="about_ala_paragraph_2">The Atlas is a national initiative funded under the NCRIS and EIF Super Science. The Atlas is a collaboration between CSIRO; the Queensland Museum; the Australian Museum; Museum Victoria; the Tasmanian Museum and Art Gallery; the Western Australian Museum; Museums and Art Galleries of the Northern Territory; South Australian Museum; Southern Cross University; the University of Adelaide; the Councils of Heads of Australasian Herbaria, Australian Faunal Collections, Australian Entomological Collections, Australian Collections of Microorganisms and Australasian Museum Directors; and the Australian Government Departments of Agriculture, Fisheries and Forestry (DAFF) and Sustainability, Environment, Water, Population and Communities (formerly DEWHA), including the Australian Biological Resources Study.</string>
+    <string name="about_ala_paragraph_3">Scientists, citizen scientists and others can use the Atlas to find information, records and images of Australia\'s flora and fauna, and to view the recorded information on maps - the Atlas\'s mapping tools include more than 300 environmental layers.</string>
+    <string name="about_ala_url"><data><![CDATA[<a href="http://www.ala.org.au">www.ala.org.au</a>]]></data></string>
+    
+
 </resources>
