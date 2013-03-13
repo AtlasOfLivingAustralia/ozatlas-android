@@ -41,6 +41,12 @@
         <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
     </style> -->
 
+   <style name="species_page_style" parent="AppTheme">
+       <item name="android:windowBackground">@color/species_page_background</item>
+       <item name="android:background">@color/species_page_background</item>
+       
+   </style>
+
     
   <style name="DateSpinner" parent="@style/Sherlock.__Widget.Holo.Spinner">
         <item name="android:paddingBottom">5dp</item>

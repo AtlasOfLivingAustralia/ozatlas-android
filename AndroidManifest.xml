@@ -62,7 +62,8 @@
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.SpeciesPageActivity"
-            android:label="@string/title_activity_species_page" >
+            android:label="@string/title_activity_species_page"
+            style="@style/species_page_style" >
         </activity>
         <activity
             android:name="au.org.ala.ozatlas.RecordSightingActivity"
