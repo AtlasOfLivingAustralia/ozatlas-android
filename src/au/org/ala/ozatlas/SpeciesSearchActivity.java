@@ -1,5 +1,6 @@
 package au.org.ala.ozatlas;
 import android.os.Bundle;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 

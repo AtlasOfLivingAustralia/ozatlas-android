@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.actionbarsherlock.app.SherlockActivity;
 

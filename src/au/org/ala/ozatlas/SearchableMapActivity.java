@@ -6,6 +6,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.location.Address;
 import android.widget.Toast;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;

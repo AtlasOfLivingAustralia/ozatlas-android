@@ -9,6 +9,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import au.org.ala.mobile.ozatlas.R;
 
 /**
  * Displays information about the atlas.

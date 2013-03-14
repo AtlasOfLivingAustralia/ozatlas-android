@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.fedorvlasov.lazylist.ImageLoader;
 

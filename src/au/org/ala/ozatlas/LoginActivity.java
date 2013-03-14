@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.actionbarsherlock.app.SherlockActivity;
 

@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import au.org.ala.mobile.ozatlas.R;
 
 public class ExploreGroupActivity extends GroupActivity {
 

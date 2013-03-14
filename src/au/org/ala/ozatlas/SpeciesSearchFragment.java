@@ -22,6 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import au.org.ala.mobile.ozatlas.R;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
