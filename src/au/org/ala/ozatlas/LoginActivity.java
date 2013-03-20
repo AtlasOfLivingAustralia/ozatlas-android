@@ -83,6 +83,7 @@ public class LoginActivity extends SherlockActivity implements OnClickListener {
 	}
 	
 	private void dismissProgressDialog() {
+		dialogShowing = false;
 		if (pd != null) {
 			pd.dismiss();
 			pd = null;
